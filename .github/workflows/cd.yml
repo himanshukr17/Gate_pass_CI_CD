@@ -27,7 +27,7 @@ jobs:
       - name: Download Artifact from CI
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: react-ci.yml          # <-- match your actual CI filename exactly
+          workflow: react-ci.yml        # Change if your CI filename is different
           run_id: ${{ github.event.workflow_run.id }}
           name: react-build
           path: C:\Temp\Build
@@ -36,18 +36,25 @@ jobs:
         shell: powershell
         run: |
           if (!(Test-Path "C:\Backup")) {
-            New-Item -ItemType Directory -Path "C:\Backup"
+              New-Item -ItemType Directory -Path "C:\Backup"
           }
  
       - name: Backup Existing Website
         shell: powershell
         run: |
           $date = Get-Date -Format yyyyMMddHHmmss
+ 
           Copy-Item `
             "C:\inetpub\wwwroot\GateAccess" `
             "C:\Backup\GateAccess-$date" `
             -Recurse `
             -Force
+ 
+      - name: Stop IIS App Pool
+        shell: powershell
+        run: |
+          Import-Module WebAdministration
+          Stop-WebAppPool -Name "GateAccess"
  
       - name: Remove Existing Files
         shell: powershell
@@ -64,11 +71,12 @@ jobs:
             -Recurse `
             -Force
  
-      - name: Restart IIS App Pool
+      - name: Start IIS App Pool
+        if: always()
         shell: powershell
         run: |
           Import-Module WebAdministration
-          Restart-WebAppPool "GateAccess"
+          Start-WebAppPool -Name "GateAccess"
  
       - name: Deployment Completed
         run: echo "Deployment Successful"
