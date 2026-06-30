@@ -1,10 +1,14 @@
+const apiURL = process.env.REACT_APP_API_URL1;
+const apiProtocol = process.env.REACT_APP_API_PROTOCOL;
+
+
 module.exports = {
 
-  protocol: "https://",
+  protocol: apiProtocol,
 
   // url: "103.25.131.12:3045/",
   //  url:"103.25.131.12:3045/",
-  url:"gateentryapi.rrparkon.net:6008/",
+  url: apiURL,
   // url:"localhost:3045/",
 
   login: 'Employee/Emp_login?',

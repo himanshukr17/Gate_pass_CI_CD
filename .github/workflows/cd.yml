@@ -1,0 +1,77 @@
+name: Deploy Production
+
+on:
+
+  workflow_run:
+
+    workflows: ["React CI"]
+
+    types:
+
+      - completed
+
+jobs:
+
+  deploy:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on:
+
+      - self-hosted
+
+      - windows
+
+
+    environment:
+
+      name: Production
+
+    steps:
+
+      - name: Download Artifact
+
+        uses: actions/download-artifact@v4
+
+        with:
+
+          name: react-build
+
+          path: C:\Temp\Build
+
+      - name: Backup Website
+
+        shell: powershell
+
+        run: |
+
+          $date=Get-Date -Format yyyyMMddHHmmss
+
+          Copy-Item "C:\inetpub\wwwroot\GateAccess" "C:\Backup\GateAccess-$date" -Recurse
+
+      - name: Remove Old Files
+
+        shell: powershell
+
+        run: |
+
+          Get-ChildItem "C:\inetpub\wwwroot\GateAccess" -Exclude web.config | Remove-Item -Recurse -Force
+
+      - name: Copy Build
+
+        shell: powershell
+
+        run: |
+
+          Copy-Item "C:\Temp\Build\*" "C:\inetpub\wwwroot\GateAccess" -Recurse -Force
+
+      - name: Restart IIS
+
+        shell: powershell
+
+        run: |
+
+          Import-Module WebAdministration
+
+          Restart-WebAppPool "GateAccess"
+ 

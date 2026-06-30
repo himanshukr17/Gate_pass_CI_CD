@@ -2,7 +2,7 @@ import axios from "axios";
 import api from '../../utils/api'
 
 export const Cancel = (entry) => async (dispatch, getState) => {
-      // console.log("api--->", `${api.protocol}${api.url}${api.login}id=${entry}`);
+      console.log("api--->", `${api.protocol}${api.url}${api.login}id=${entry}`);
       return new Promise((resolve, reject) => {
             axios.get(`${api.protocol}${api.url}${api.cancelEntry}id=${entry}`).then((response) => {
 
