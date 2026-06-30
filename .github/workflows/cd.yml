@@ -1,77 +1,74 @@
 name: Deploy Production
-
+ 
 on:
-
   workflow_run:
-
-    workflows: ["React CI"]
-
+    workflows:
+      - React CI
     types:
-
       - completed
-
+ 
+permissions:
+  actions: read
+  contents: read
+ 
 jobs:
-
   deploy:
-
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
+    if: github.event.workflow_run.conclusion == 'success'
+ 
     runs-on:
-
       - self-hosted
-
-      - windows
-
-
+      - Windows
+      - IIS
+ 
     environment:
-
       name: Production
-
+ 
     steps:
-
-      - name: Download Artifact
-
-        uses: actions/download-artifact@v4
-
+      - name: Download Artifact from CI
+        uses: dawidd6/action-download-artifact@v3
         with:
-
+          workflow: react-ci.yml          # <-- match your actual CI filename exactly
+          run_id: ${{ github.event.workflow_run.id }}
           name: react-build
-
           path: C:\Temp\Build
-
-      - name: Backup Website
-
+ 
+      - name: Create Backup Folder
         shell: powershell
-
         run: |
-
-          $date=Get-Date -Format yyyyMMddHHmmss
-
-          Copy-Item "C:\inetpub\wwwroot\GateAccess" "C:\Backup\GateAccess-$date" -Recurse
-
-      - name: Remove Old Files
-
+          if (!(Test-Path "C:\Backup")) {
+            New-Item -ItemType Directory -Path "C:\Backup"
+          }
+ 
+      - name: Backup Existing Website
         shell: powershell
-
         run: |
-
-          Get-ChildItem "C:\inetpub\wwwroot\GateAccess" -Exclude web.config | Remove-Item -Recurse -Force
-
-      - name: Copy Build
-
+          $date = Get-Date -Format yyyyMMddHHmmss
+          Copy-Item `
+            "C:\inetpub\wwwroot\GateAccess" `
+            "C:\Backup\GateAccess-$date" `
+            -Recurse `
+            -Force
+ 
+      - name: Remove Existing Files
         shell: powershell
-
         run: |
-
-          Copy-Item "C:\Temp\Build\*" "C:\inetpub\wwwroot\GateAccess" -Recurse -Force
-
-      - name: Restart IIS
-
+          Get-ChildItem "C:\inetpub\wwwroot\GateAccess" -Exclude web.config |
+            Remove-Item -Recurse -Force
+ 
+      - name: Copy Build Files
         shell: powershell
-
         run: |
-
+          Copy-Item `
+            "C:\Temp\Build\*" `
+            "C:\inetpub\wwwroot\GateAccess" `
+            -Recurse `
+            -Force
+ 
+      - name: Restart IIS App Pool
+        shell: powershell
+        run: |
           Import-Module WebAdministration
-
           Restart-WebAppPool "GateAccess"
  
+      - name: Deployment Completed
+        run: echo "Deployment Successful"
