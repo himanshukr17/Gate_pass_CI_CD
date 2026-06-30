@@ -22,7 +22,6 @@ jobs:
 
       - windows
 
-      - production
 
     environment:
 
