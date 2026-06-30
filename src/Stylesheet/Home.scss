@@ -1,0 +1,216 @@
+.alignCard {
+      display: flex;
+      flex-wrap: wrap;
+}
+
+.card {
+      position: relative;
+      background-color: #FFFAEA;
+      padding: 2vh;
+      width: 30%;
+      margin: auto;
+      margin-right: -1rem;
+      border-radius: 5vh;
+      padding-left: 10vh;
+      padding-right: 10vh;
+      margin-top: 5vh;
+}
+
+.card:hover {
+      color: #fff;
+      // padding: 2vh;
+      // width: 30%;
+      // margin: auto;
+      // border-radius: 5vh;
+      // padding-left: 10vh;
+      // padding-right: 10vh;
+      // margin-top: 5vh;
+      // box-shadow: 0px 4px 20px 0px #dedeff;
+      background-image: linear-gradient(135deg, #C5B47D 10%, #4CB2CC 100%);
+      cursor: grab;
+}
+
+.card1 {
+      background-color: #FFEEEE;
+      position: relative;
+      padding: 2vh;
+      width: 30%;
+      display: flex;
+      margin: auto;
+      margin-left: 8rem;
+      border-radius: 5vh;
+      padding-left: 10vh;
+      padding-right: 10vh;
+      margin-top: 5vh;
+}
+
+.card1:hover {
+      color: #fff;
+      position: relative;
+      // padding: 2vh;
+      // width: 30%;
+      // display: flex;
+      // margin: auto;
+      // border-radius: 5vh;
+      // padding-left: 10vh;
+      // padding-right: 10vh;
+      // margin-top: 5vh;
+      // box-shadow: 0px 4px 20px 0px #dedeff;
+      background-image: linear-gradient(135deg, #EB8282 10%, #4CB2CC 100%);
+      cursor: grab;
+}
+
+.card2 {
+      position: relative;
+      background-color: #C7F4C2;
+      padding: 2vh;
+      width: 30%;
+      margin: auto;
+      margin-right: -1rem;
+
+      border-radius: 5vh;
+      padding-left: 10vh;
+      padding-right: 10vh;
+      margin-top: 2vh;
+      margin-bottom: 4vh;
+}
+
+.card2:hover {
+      color: #fff;
+      // padding: 2vh;
+      // width: 30%;
+      // margin: auto;
+      // border-radius: 5vh;
+      // padding-left: 10vh;
+      // padding-right: 10vh;
+      // margin-top: 5vh;
+      // margin-bottom: 5vh;
+      // box-shadow: 0px 4px 20px 0px #dedeff;
+      cursor: grab;
+      background-image: linear-gradient(135deg, #73D069 10%, #4CB2CC 100%);
+}
+
+.card3 {
+      position: relative;
+      background-color: hsl(203, 69%, 86%);
+      padding: 2vh;
+      width: 30%;
+      margin: auto;
+      margin-right: -1rem;
+      border-radius: 5vh;
+      padding-left: 10vh;
+      padding-right: 10vh;
+      margin-top: 5vh;
+      margin-bottom: 5vh;
+}
+
+.card3:hover {
+      color: #fff;
+      cursor: grab;
+      background-image: linear-gradient(135deg, #6d9ed6 10%, #4CB2CC 100%);
+}
+
+.card4 {
+      position: relative;
+      background-color: #ECC5F0;
+      padding: 2vh;
+      width: 30%;
+      margin: auto;
+      margin-left: 8rem;
+      border-radius: 5vh;
+      padding-left: 10vh;
+      padding-right: 10vh;
+      margin-top: 2vh;
+      margin-bottom: 4vh;
+}
+
+.card4:hover {
+      color: #fff;
+      cursor: grab;
+      background-image: linear-gradient(135deg, #fbc2eb 10%, #4CB2CC 100%);
+}
+
+.iconStyle1 {
+      background-color: #C5B47D;
+      width: 4%;
+      flex-wrap: wrap;
+      position: absolute;
+      right: 25px;
+      border-radius: 10vh;
+      padding: 0.5vh;
+      text-align: center;
+}
+
+.iconStyle2 {
+      background-color: #EB8282;
+      width: 4%;
+      flex-wrap: wrap;
+      position: absolute;
+      right: 25px;
+      border-radius: 10vh;
+      padding: 0.5vh;
+      text-align: center;
+
+}
+
+.iconStyle3 {
+      background-color: #73D069;
+      width: 4%;
+      flex-wrap: wrap;
+      position: absolute;
+      right: 25px;
+      border-radius: 10vh;
+      padding: 0.5vh;
+      text-align: center;
+
+}
+
+.iconStyle4 {
+      background-color: #4d91c9;
+      width: 4%;
+      flex-wrap: wrap;
+      position: absolute;
+      right: 25px;
+      border-radius: 10vh;
+      padding: 0.5vh;
+      text-align: center;
+
+}
+
+.iconStyle5 {
+      background-color: #B282D7;
+      width: 4%;
+      flex-wrap: wrap;
+      position: absolute;
+      right: 25px;
+      border-radius: 10vh;
+      padding: 0.5vh;
+      text-align: center;
+
+}
+
+.alignment {
+      display: flex;
+      flex-wrap: wrap;
+}
+
+.cardHeading {
+      font-size: 3.5vh;
+      font-weight: bold;
+      font-style: italic;
+      margin-top: 0;
+      margin-bottom: 3rem;
+      margin-left: 2rem;
+}
+
+
+.cardDesc {
+      font-size: 2.2vh;
+      // font-weight: bold;
+      font-style: italic;
+      margin-top: -3vh;
+}
+
+.bottom {
+      background-color: black;
+}

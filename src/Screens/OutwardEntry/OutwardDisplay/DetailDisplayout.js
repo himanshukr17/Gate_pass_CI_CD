@@ -1,0 +1,376 @@
+import React, { useMemo, useEffect, useState } from 'react'
+import '../../../Stylesheet/Details.scss'
+import { useTable } from 'react-table'
+import Header from '../../../Components/Header'
+import CustomDivider from '../../../Components/Divider'
+import Footer from '../../../Components/Footer'
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { IconContext } from "react-icons";
+import { AiFillCaretDown, AiFillCaretRight, AiFillCaretUp } from "react-icons/ai";
+
+const apiURL = process.env.REACT_APP_API_URL
+
+function DetailDisplayout() {
+
+  const location = useLocation()
+  const previousdata = location.state
+  const navigate = useNavigate()
+
+  const [da, setda] = useState([])
+
+  useEffect(() => {
+    // On component mount, set the table data with BILLED_QTY property set to 0
+    const newData = [];
+    previousdata[0].Entry_Details.forEach((items) => {
+      newData.push(items)
+      // items.Details.forEach((item) => {
+      //   newData.push({ ...item, BILLED_QTY: 0 });
+      // });
+    });
+    setda(newData);
+  }, []);
+
+
+  const col = (previousdata[0].TYPE == 5 ? [
+    {
+      Header: "Line Item",
+      accessor: "LINE_ITEM"
+    },
+
+    {
+      Header: "PO Numnber",
+      accessor: "PO_NO"
+    },
+
+    {
+      Header: "Material Numnber",
+      accessor: "MATERIAL_NO"
+    },
+
+    {
+      Header: "Material Description",
+      accessor: "MATERIAL_DESC"
+    },
+
+    {
+      Header: "UOM",
+      accessor: "UOM"
+    },
+
+    {
+      Header: "Pending Quantity",
+      accessor: "PENDING_QTY"
+    },
+
+    {
+      Header: "Billed Quantity",
+      accessor: "BILLED_QTY"
+    },
+
+  ] : previousdata[0].TYPE == 4 ? [
+    {
+      Header: "Line Item",
+      accessor: "LINE_ITEM"
+    },
+
+    {
+      Header: "PO Numnber",
+      accessor: "PO_NO"
+    },
+
+    {
+      Header: "Material Numnber",
+      accessor: "MATERIAL_NO"
+    },
+
+    {
+      Header: "Material Description",
+      accessor: "MATERIAL_DESC"
+    },
+
+    {
+      Header: "UOM",
+      accessor: "UOM"
+    },
+
+    {
+      Header: "Pending Quantity",
+      accessor: "PENDING_QTY"
+    },
+
+    {
+      Header: "Billed Quantity",
+      accessor: "BILLED_QTY"
+    },
+
+  ] : null
+
+  )
+
+  const columns = useMemo(() => col, [])
+  const data = da
+
+  const tableInstance = useTable({
+    columns,
+    data
+  })
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = tableInstance
+
+
+  // console.log('====================================');
+  // console.log("+++++", previousdata);
+  // console.log('====================================');
+
+
+  const [detail, setDetail] = useState(false)
+
+
+  return (
+    <>
+      <Header></Header>
+
+      <div className='headinggg'>
+        <div className='headingStyle'>
+          <Link to="/Outward" style={{ color: 'black' }}><p>Outward Gate Entry - </p></Link>
+          <p className='po'>Display Outward Gate Entry</p>
+        </div>
+      </div>
+
+      <div className='InputBox'>
+
+        <div className='entryHead'>
+          <p >Gate Entry Number - </p>
+          <p className='po'>{previousdata[0].GATE_ENTRY_NO}</p>
+        </div>
+
+        <div className='dividerStyle'>
+          <CustomDivider color="#1897CE" thickness="0.8vh" />
+        </div>
+
+        <div className='detailStyleee' >
+          <p>Invoice Number : </p>
+          <p className='detailStyle1'>{previousdata[0].GATE_ENTRY_NO}</p>
+        </div>
+
+        <div className='dividerStyle1'>
+          <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+        </div>
+
+        <div className='detailStyle' >
+          <p>Document Date : </p>
+          <p className='detailStyle1'>{new Date(previousdata[0].DOCUMENT_DATE).toDateString()}</p>
+        </div>
+
+        <div className='dividerStyle1'>
+          <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+        </div>
+
+        <div className='moreDetail' >
+          <p>More Details</p>
+
+          <div className='arrowStyle' onClick={() => setDetail(!detail)}>
+            <IconContext.Provider value={{ color: "#FF0000", size: "23px" }}>
+              {detail === false ? <AiFillCaretDown
+                type="button"
+              /> :
+                <AiFillCaretUp
+                  type="button"
+                />
+              }
+            </IconContext.Provider>
+          </div>
+          {/* <p className='detailStyle1'>4002749</p> */}
+        </div>
+
+        {detail && <div>
+
+          <div className='detailStyle' >
+            <p>Vendor Details : </p>
+            <p className='detailStyle1'>TUV India Pvt Ltd (582246)</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Transporter Vendor Name : </p>
+            <p className='detailStyle1'>{previousdata[0].VENDOR_NAME} ({previousdata[0].VENDOR_ID})</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Plant : </p>
+            <p className='detailStyle1'>{previousdata[0].PLANT}</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Driver Name : </p>
+            <p className='detailStyle1'>{previousdata[0].DRIVER_NAME} ({previousdata[0].MOBILE_NUMBER})</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Mode of Transport : </p>
+            <p className='detailStyle1'>{previousdata[0].MODE_OF_TRANSPORT} ({previousdata[0].VEHICLE_NO})</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Road Permit Number : </p>
+            <p className='detailStyle1'>{previousdata[0].ROAD_PERMIT_NUMBER}</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>LR Number & Date : </p>
+            <p className='detailStyle1'>{previousdata[0].LR_NO}</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>LR Date : </p>
+            <p className='detailStyle1'>{new Date(previousdata[0].LR_DATE).toDateString()}</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Packages : </p>
+            <p className='detailStyle1'>{previousdata[0].PACKAGES}</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          <div className='detailStyle' >
+            <p>Vehicle Reporting Date & Time : </p>
+            <p className='detailStyle1'>{new Date(previousdata[0].REPORTING_DATETIME).toDateString() + " , " + previousdata[0].REPORTING_DATETIME?.split("T")[1]?.split(":")[0] + ":" + previousdata[0].REPORTING_DATETIME?.split("T")[1]?.split(":")[1]}</p>
+          </div>
+
+          <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>
+
+          {/* <div className='detailStyle' >
+          <p>Vehicle Inward Date & Time : </p>
+          <p className='detailStyle1'>{new Date(previousdata[0].INWARD_DATETIME).toDateString() + " , " + previousdata[0].INWARD_DATETIME?.split("T")[1]?.split(":")[0] + ":" + previousdata[0].INWARD_DATETIME?.split("T")[1]?.split(":")[1]}</p>
+        </div>
+
+        <div className='dividerStyle1'>
+          <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+        </div> */}
+
+          {previousdata[0].OUTWARD_DATETIME && <div className='detailStyle' >
+            <p>Vehicle Outward Date & Time : </p>
+            <p className='detailStyle1'>{new Date(previousdata[0].OUTWARD_DATETIME).toDateString() + " , " + previousdata[0].OUTWARD_DATETIME?.split("T")[1]?.split(":")[0] + ":" + previousdata[0].OUTWARD_DATETIME?.split("T")[1]?.split(":")[1]}</p>
+          </div>}
+
+          {previousdata[0].OUTWARD_DATETIME && <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>}
+
+          {previousdata[0].ATTACHMENT && <div className='detailStyle' >
+            <p>Attached Document : </p>
+            <a href={`${apiURL}images/${previousdata[0].ATTACHMENT}`} target="_blank" rel="noopener noreferrer"><p className='detailStyle1'>{previousdata[0].ATTACHMENT}</p></a>
+          </div>}
+
+          {previousdata[0].ATTACHMENT && <div className='dividerStyle1'>
+            <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+          </div>}
+
+          {/* <div className='detailStyle' >
+          <p>Vehicle Weight at time of Reporting : </p>
+          <p className='detailStyle1'>112 kg</p>
+        </div>
+
+        <div className='dividerStyle1'>
+          <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
+        </div> */}
+
+        </div>}
+
+      </div>
+
+      <div className='tableStyle'>
+        <table {...getTableProps()}>
+          <thead>
+            {
+              headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {
+                    headerGroup.headers.map((column) => (
+                      <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                    ))
+                  }
+                </tr>
+              ))
+            }
+          </thead>
+
+          <tbody {...getTableBodyProps()}>
+            {
+              rows.map((row) => {
+                prepareRow(row)
+                return (
+                  <tr {...row.getRowProps()}>
+                    {
+                      row.cells.map((cell) => {
+                        return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                      })
+                    }
+                  </tr>
+                )
+              })
+            }
+          </tbody>
+
+        </table>
+      </div>
+
+      {/* <div className='buttonAlign'>
+        <button className="feildBtn" onClick={() => {}}>
+          Submit
+        </button>
+      </div> */}
+
+      <div className='footerSpacing'>
+        <Footer>
+
+        </Footer>
+      </div>
+
+    </>
+  )
+}
+
+export default DetailDisplayout

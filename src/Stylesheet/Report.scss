@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Maven+Pro:wght@400..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$font-color: #858585;
+$yellow-color: #988100;
+$blue-color: #0044D7;
+$green-color: #008000;
+$red-color: #FF0000;
+$table-border: 1px solid #e0e0e0;
+
+.table-container {
+  // padding: 15px;
+  border-radius: 10px;
+  width: 90vw;
+  // height: 100vh;
+  margin: 0 auto;
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+
+
+    thead {
+      background-color: #b9dcf7;
+      color: #215074;
+
+      th {
+        padding: 10px;
+        background-color: "#B9DCF7";
+        border-bottom: $table-border;
+        font-family: "Roboto", sans-serif;
+        font-style: normal;
+        border: none;
+      }
+    }
+
+    .table-row {
+      background-color: #ffffff;
+      border-left: 1.24px solid rgba(228, 228, 228, 1);
+      border-right: 1.24px solid rgba(228, 228, 228, 1);
+      font-family: "Roboto", sans-serif;
+
+      td {
+        padding: 6px;
+        border-bottom: $table-border;
+        font-family: "Roboto", sans-serif;
+        font-style: normal;
+        text-align: center;
+        border-left: none;
+        border-right: none;
+
+        &.gate-pass-no,
+        &.vendor-name {
+          color: $font-color;
+          font-weight: 500;
+          font-size: 15px;
+          line-height: 24px;
+        }
+
+        &.status {
+          font-weight: 700;
+          font-size: 13px;
+          line-height: 15px;
+
+          &.status .pending {
+            padding: 2px 8px;
+            border-radius: 5px;
+            background-color: #FFF9D6;
+            color: #C7A900;
+          }
+
+          &.status .unloading {
+            padding: 2px 8px;
+            border-radius: 5px;
+            background-color: #FAEEFF;
+            color: #9834C3;
+          }
+          &.status .active-badge {
+            background-color: #28a745;  // Green
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px; 
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        &.status .inactive-badge {
+            background-color: #dc3545;  // Red
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+          &.status .pendingCancel{
+            background-color: #ffedce;  // Red
+            color: rgb(212, 112, 6);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            display: inline-block;
+          }
+
+          &.status .completed {
+            padding: 2px 8px;
+            border-radius: 5px;
+            color: #27B644;
+            background-color: #ECFFF0;
+          }
+          &.status .cancelled {
+            padding: 2px 8px;
+            border-radius: 5px;
+            color: #B62727;
+            background-color: #FFECEC;
+          }
+           &.status .pendingPO {
+            padding: 2px 8px;
+            border-radius: 5px;
+            color: #e21f1f;
+            background-color: #e4ccce;
+          }
+
+
+          & .status .default {
+            color: $font-color;
+          }
+        }
+
+        &.td-type {
+          font-weight: 400;
+          padding: 2px 8px;
+          border-radius: 5px;
+          // color: $blue-color;
+
+          &.td-type .inward {
+            padding: 2px 8px;
+            border-radius: 5px;
+            background-color: rgba(47, 113, 255, 0.3);
+            color: rgba(0, 41, 130, 0.742);
+
+          }
+
+          &.td-type .outward {
+            padding: 2px 8px;
+            border-radius: 5px;
+            background-color: rgba(255, 171, 25, 0.3);
+            color: #dc8b00;
+          }
+        }
+
+        &.entry-date,
+        &.more-details {
+          color: $font-color;
+        }
+
+        .view {
+          font-weight: 500;
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 5px;
+          background-color: rgba(109, 95, 190, 0.3);
+          color: $blue-color;
+        }
+      }
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    margin-top: 25px;
+
+    button {
+      padding: 8px 12px;
+      margin: 0 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: $blue-color;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+
+      &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+    }
+
+    span {
+      margin: 0 10px;
+      font-size: 14px;
+    }
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-height: 80%;
+      overflow-y: auto;
+
+      .modal-header {
+        background-color: #d3d3d3;
+        // padding: 0px 50px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        border-radius: 14px 14px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close-modal {
+        width: 30px;
+        color: rgb(240, 0, 0);
+        font-size: 30px;
+        cursor: pointer;
+      }
+
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+
+        .top-section {
+          display: flex;
+          gap: 20px;
+        }
+        }
+
+        .bottom-table {
+          width: 100%;
+          th,
+          td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+        }
+      }
+    }
+  }
