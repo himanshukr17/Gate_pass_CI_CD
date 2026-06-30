@@ -1,50 +1,64 @@
 name: React CI
  
 on:
- 
+
   push:
- 
+
     branches:
- 
+
       - development
- 
+
       - main
  
-jobs:
- 
-  build:
- 
-    runs-on: ubuntu-latest
+permissions:
 
-    env:
+  contents: read
+
+  actions: read
  
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+ 
+    env:
+
       CI: false
  
     steps:
+
+      - name: Checkout Repository
+
+        uses: actions/checkout@v4
  
-      - uses: actions/checkout@v4
- 
-      - uses: actions/setup-node@v4
- 
+      - name: Setup Node
+
+        uses: actions/setup-node@v4
+
         with:
- 
+
           node-version: 20
- 
+
           cache: yarn
  
-      - run: yarn install --frozen-lockfile
+      - name: Install Dependencies
 
+        run: yarn install --frozen-lockfile
+ 
+      - name: Build Application
 
+        run: yarn build
  
-      - run: yarn build
- 
-      - name: Upload Build
- 
+      - name: Upload Build Artifact
+
         uses: actions/upload-artifact@v4
- 
+
         with:
- 
+
           name: react-build
- 
+
           path: build
+
+          retention-days: 5
  
