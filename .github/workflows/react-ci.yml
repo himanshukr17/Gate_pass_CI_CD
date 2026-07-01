@@ -17,6 +17,8 @@ jobs:
     environment:
       name: Production
 
+    env:
+      CI: false
 
     steps:
       - name: Checkout Repository
