@@ -965,12 +965,13 @@ function VehicleReport(props) {
                     <input
                       type="text"
                       required
-                      minLength="10"
-                      maxLength="11"
+                      minLength="8"
+                      maxLength="10"
                       value={data.VEHICLE_NO || ""}
                       onChange={(event) => {
                         let upperCaseValue = event.target.value.toUpperCase();
-                        upperCaseValue = upperCaseValue.replace(/\s/g, "");
+                        // Strip out anything that isn't a letter or number (spaces, ., /, *, -, etc.)
+                        upperCaseValue = upperCaseValue.replace(/[^A-Z0-9]/g, "");
                         setValue({ VEHICLE_NO: upperCaseValue });
 
                         seterror((prevError) => ({
@@ -979,12 +980,13 @@ function VehicleReport(props) {
                         }));
 
                         if (
-                          (upperCaseValue.length !== 10 && upperCaseValue.length !== 11) ||
-                          !/^[A-Z0-9]{10,11}$/.test(upperCaseValue)
+                          upperCaseValue.length < 8 ||
+                          upperCaseValue.length > 10 ||
+                          !/^[A-Z0-9]{8,10}$/.test(upperCaseValue)
                         ) {
                           seterror((prevError) => ({
                             ...prevError,
-                            VEHNO: "Enter a valid Vehicle Number.",
+                            VEHNO: "Vehicle Number must be 8-10 characters, letters and numbers only.",
                           }));
                         }
                       }}
