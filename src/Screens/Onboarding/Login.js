@@ -68,7 +68,7 @@ function Login(props) {
         </div>
         <div style={{ alignItems: "left" }}>
           <h1 style={{ fontSize: "25px", fontWeight: "400", color: "#005878", fontFamily: "Roboto, sans-serif", marginBottom: "2rem" }}>
-            Hello! It’s great to see youu.
+            Hello! It’s great to see you.
           </h1>
           <h2 style={{ fontSize: "19px", fontWeight: "700", marginBottom: "3rem" }}>Login here</h2>
 

@@ -33,10 +33,6 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Debug Env
-        run: |
-          echo "URL1 is: [$REACT_APP_API_URL1]"
-          echo "Protocol is: [$REACT_APP_API_PROTOCOL]"
         env:
           REACT_APP_API_URL1: ${{ vars.REACT_APP_API_URL1 }}
           REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
