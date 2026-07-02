@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: Production
+      name: Development
 
     env:
       CI: false
