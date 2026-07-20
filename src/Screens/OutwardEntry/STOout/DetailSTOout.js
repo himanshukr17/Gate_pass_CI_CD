@@ -52,12 +52,13 @@ function DetailSTOout(props) {
   const [filteredVehicle, setFilteredVehicle] = useState(null);
   const [searchInput, setSearchInput] = useState("");
 
+
   // console.log("filteredVehicle", filteredVehicle);
   useEffect(() => {
     const fetchVehicleData = async () => {
       try {
         const response = await axios.get(
-          `https://gateentryapi.rrparkon.net:6008/Vehicle/GetAllVehicle`
+          `${apiURL}/Vehicle/GetAllVehicle`
         );
         setVehicles(response.data);
         setLoading(false);
@@ -147,9 +148,9 @@ function DetailSTOout(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`);
+      const response = await fetch(`${apiURL}/Employee/mot`);
       const response1 = await fetch(
-        `https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`
+        `${apiURL}/Employee/vehicle_category`
       );
       const newData = await response.json();
       setMotList(newData);

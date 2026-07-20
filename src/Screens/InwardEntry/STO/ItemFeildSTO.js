@@ -11,6 +11,9 @@ import toast, { Toaster } from 'react-hot-toast';
 import { IconContext } from "react-icons";
 import { AiFillCaretDown, AiFillCaretRight, AiFillCaretUp } from "react-icons/ai";
 
+
+const apiURL = process.env.REACT_APP_API_URL
+
 function ItemFeildSTO(props) {
 
   const location = useLocation();
@@ -194,8 +197,7 @@ console.log("selectedPlants",selectedPlant) // To store matched plant data
 useEffect(() => {
     const fetchData = async () => {
         try {
-            // console.log("url", `https://gateentryapi.rrparkon.net:6008/Employee/allocated_plant?id=${props.EmpId}`);
-            const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/allocated_plant?id=${props.EmpId}`);
+            const response = await fetch(`${apiURL}/Employee/allocated_plant?id=${props.EmpId}`);
             const newData = await response.json();
 
             // Update plantList with raw data

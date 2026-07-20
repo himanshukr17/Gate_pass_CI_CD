@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import html2pdf from "html2pdf.js"
-
+const apiURL = process.env.REACT_APP_API_URL
 const Table = () => {
 
   const [tableData, setTableData] = useState([]);
@@ -184,8 +184,7 @@ const Table = () => {
 
   const fetchData = async () => {
     try {
-      // console.log("api--->", `https://gateentryapi.rrparkon.net:6008/Entry/GetAllEntry`);
-      const response = await axios.get(`https://gateentryapi.rrparkon.net:6008/Entry/GetAllEntry`);
+      const response = await axios.get(`${apiURL}Entry/GetAllEntry`);
       console.log("response", response.data);
 
       if (response.status === 200) {

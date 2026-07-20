@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 
 const apiURL = process.env.REACT_APP_API_URL
 
-
 function DetailSTO(props) {
 
       const navigate = useNavigate();
@@ -53,7 +52,7 @@ function DetailSTO(props) {
         const fetchVehicleData = async () => {
           try {
             const response = await axios.get(
-              `https://gateentryapi.rrparkon.net:6008/Vehicle/getVehicleByPlant?plant=${podata[0]?.PLANT}&vehicleNo=${data?.VEHICLENO}`
+              `${apiURL}/Vehicle/getVehicleByPlant?plant=${podata[0]?.PLANT}&vehicleNo=${data?.VEHICLENO}`
             );
             setVehicles(response.data);
             setLoading(false);
@@ -140,9 +139,9 @@ function DetailSTO(props) {
     
       useEffect(() => {
         const fetchData = async () => {
-          const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`);
+          const response = await fetch(`${apiURL}/Employee/mot`);
           const response1 = await fetch(
-            `https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`
+            `${apiURL}/Employee/vehicle_category`
           );
           const newData = await response.json();
           setMotList(newData);

@@ -11,6 +11,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { IconContext } from "react-icons";
 import { AiFillCaretDown, AiFillCaretUp } from "react-icons/ai";
 
+const apiURL = process.env.REACT_APP_API_URL
+
 function ItemFeild(props) {
   const location = useLocation();
   const itemdata = location.state;
@@ -187,11 +189,12 @@ function ItemFeild(props) {
   const [plantOptions, setPlantOptions] = useState([]);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  console.log("selected Plants",selectedPlant)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/allocated_plant?id=${props.EmpId}`);
+        const response = await fetch(`${apiURL}/Employee/allocated_plant?id=${props.EmpId}`);
         const newData = await response.json();
 
         setPlantList(newData);
@@ -276,7 +279,7 @@ function ItemFeild(props) {
 
           <div className='detailStyle' >
             <p>Plant : </p>
-            <p className='detailStyle1'>{(selectedPlant.PLANT_ID)}-{selectedPlant.PLANT_NAME}</p>
+            <p className='detailStyle1'>{(selectedPlant?.PLANT_ID)}-{selectedPlant?.PLANT_NAME}</p>
           </div>
 
           <div className='dividerStyle1'>

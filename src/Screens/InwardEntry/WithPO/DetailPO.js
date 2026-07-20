@@ -9,6 +9,7 @@ import moment from "moment";
 import toast, { Toaster } from 'react-hot-toast';
 
 import axios from "axios";
+const apiURL = process.env.REACT_APP_API_URL
 
 const DetailPO = (props) => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const DetailPO = (props) => {
       const fetchAllVehicle = async () => {
         try {
           const response = await axios.get(
-            `https://gateentryapi.rrparkon.net:6008/Vehicle/getVehicleByPlant?plant=${podata[0]?.PLANT}`
+            `${apiURL}Vehicle/getVehicleByPlant?plant=${podata[0]?.PLANT}`
           );
 
           const vehicleNo = response.data.map((item) => item.VEHICLE_NO)
@@ -75,7 +76,7 @@ const DetailPO = (props) => {
       const fetchVehicleData = async () => {
         try {
           const response = await axios.get(
-            `https://gateentryapi.rrparkon.net:6008/Vehicle/getVehicleByPlant?plant=${podata[0]?.PLANT}&vehicleNo=${data?.VEHICLENO}`
+            `${apiURL}Vehicle/getVehicleByPlant?plant=${podata[0]?.PLANT}&vehicleNo=${data?.VEHICLENO}`
           );
           setVehicles(response.data);
           setLoading(false);
@@ -197,9 +198,9 @@ const DetailPO = (props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`);
+      const response = await fetch(`${apiURL}Employee/mot`);
       const response1 = await fetch(
-        `https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`
+        `${apiURL}Employee/vehicle_category`
       );
       const newData = await response.json();
       setMotList(newData);

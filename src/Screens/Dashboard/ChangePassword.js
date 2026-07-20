@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Header from "../../Components/Header";
 import toast from "react-hot-toast";
 
+const apiURL = process.env.REACT_APP_API_URL
+
 function ChangePassword(props) {
 
   console.log("props", props.emp_ID)
@@ -26,7 +28,7 @@ function ChangePassword(props) {
     setError(""); 
 
     try {
-      const response = await fetch("https://gateentryapi.rrparkon.net:6008/Employee/changePassword", {
+      const response = await fetch(`${apiURL}/Employee/changePassword`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -11,6 +11,7 @@ import Select from "react-select";
 import ReportTable from "../../Components/ReportTable";
 import moment from "moment";
 import axios from "axios";
+const apiURL = process.env.REACT_APP_API_URL
 
 function VehicleReport(props) {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ function VehicleReport(props) {
     const fetchVehicleData = async () => {
       try {
         const response = await axios.get(
-          `https://gateentryapi.rrparkon.net:6008/Vehicle/GetVehicle`
+          `${apiURL}Vehicle/GetVehicle`
         );
         setVehicles(response.data);
       } catch (err) {
@@ -83,7 +84,7 @@ function VehicleReport(props) {
     const bodytoSend = {
       REMARK: data.REMARK || "",
     };
-    const apiUrl = `https://gateentryapi.rrparkon.net:6008/Vehicle/cancelEntry?id=${selectedRow.vehicaleNo}&key=${selectedRow.vehicleKey}`;
+    const apiUrl = `${apiURL}Vehicle/cancelEntry?id=${selectedRow.vehicaleNo}&key=${selectedRow.vehicleKey}`;
     try {
       const response = await axios.post(apiUrl, bodytoSend, {
         headers: {
@@ -136,9 +137,9 @@ function VehicleReport(props) {
     const fetchData = async () => {
       try {
         const [motResponse, vcatResponse, plantResponse] = await Promise.all([
-          fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`),
-          fetch(`https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`),
-          details ? fetch(`https://gateentryapi.rrparkon.net:6008/Employee/allocated_plant?id=${details}`) : Promise.resolve(null),
+          fetch(`${apiURL}Employee/mot`),
+          fetch(`${apiURL}Employee/vehicle_category`),
+          details ? fetch(`${apiURL}Employee/allocated_plant?id=${details}`) : Promise.resolve(null),
         ]);
 
         if (motResponse.ok) {
@@ -273,7 +274,7 @@ function VehicleReport(props) {
             };
 
             const poResponse = await axios.post(
-              "https://gateentryapi.rrparkon.net:6008/Vehicle/checkApprovedPo",
+              `${apiURL}Vehicle/checkApprovedPo`,
               send_data,
               { headers: { "Content-Type": "application/json" } }
             );
@@ -464,7 +465,7 @@ function VehicleReport(props) {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `https://gateentryapi.rrparkon.net:6008/Vehicle/getVehicleById?id=${details}`
+        `http://localhost:3045/Vehicle/getVehicleById?id=${details}`
       );
       if (response.data) {
         console.log("Reponse", response.data);
@@ -586,7 +587,7 @@ function VehicleReport(props) {
   }));
 
   const handleEdit = async (row) => {
-    const apiUrl = `https://gateentryapi.rrparkon.net:6008/Vehicle/ChangeFlag?VEHICLE_NO=${row.vehicaleNo}&FLAG=0&MODE=${row.mode}`;
+    const apiUrl = `http://localhost:3045/Vehicle/ChangeFlag?VEHICLE_NO=${row.vehicaleNo}&FLAG=0&MODE=${row.mode}`;
     try {
       const response = await axios.get(apiUrl);
       if (response.status === 200) {
@@ -1045,7 +1046,7 @@ function VehicleReport(props) {
                       maxLength="10"
                       value={data.DRIVER_MOBILE_NO}
                       onChange={(event) => {
-                        const inputValue = event.target.value;
+                         const inputValue = event.target.value.replace(/\D/g, "");
                         setValue({ DRIVER_MOBILE_NO: inputValue });
 
                         seterror((prevError) => ({

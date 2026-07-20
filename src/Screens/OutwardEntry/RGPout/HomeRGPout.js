@@ -2,17 +2,25 @@ import React, { useEffect, useState } from 'react'
 import '../../../Stylesheet/Details.scss'
 import Footer from '../../../Components/Footer'
 import Header from '../../../Components/Header'
-import { Button } from '@material-ui/core';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getVehicleDetails } from '../../../redux/action/Entry';
 import { connect } from 'react-redux';
-import CustomDivider from '../../../Components/Divider'
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import axios from 'axios';
 
 const apiURL = process.env.REACT_APP_API_URL
+
+
+function formatToLocalDateTimeInput(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
 function HomeWithoutPO(props) {
 
@@ -22,44 +30,68 @@ function HomeWithoutPO(props) {
   const [selectedFile, setSelectedFile] = useState([]);
   const [details, setDetails] = useState([]);
 
-  // console.log("seleeeected fileee", selectedFile);
   const [data, setdata] = useState({
-     INVOICE: "",
-     DOCDATE: "",
-     VENDORNAME: "",
-     DRIVERNAME: "",
-     MOBILE: "",
-     MOT: "",
-     VEHICLENO: "",
-     VEHCAT: "",
-     ROADPERMIT: "",
-     LR: "",
-     LRDATE: "",
-     PACKAGES: "",
-     VEHICLEREPDATE: "",
-     ATTACHMENT: '',
-     VEHICLE_KEY: ''
- 
-   });
-  console.log("podata", data);
-  // console.log("data send to server", data.VEHICLENO);
+    INVOICE: "",
+    DOCDATE: "",
+    DRIVERNAME: "",
+    MOBILE: "",
+    MOT: "",
+    VEHICLENO: "",
+    VEHCAT: "",
+    ROADPERMIT: "",
+    LR: "",
+    LRDATE: "",
+    PACKAGES: "",
+    VEHICLEREPDATE: "",
+    ATTACHMENT: '',
+    VEHICLE_KEY: ''
+  });
 
   const vData = props?.VehicleInfo;
 
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
-  const [filteredVehicle, setFilteredVehicle] = useState(null);
-  const [searchInput, setSearchInput] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // console.log("filteredVehicle", filteredVehicle);
+  // --- Emp ID (dropdown depends on this) ---
+  const [empId, setEmpId] = useState(null);
+
+  // --- Vehicle dropdown data ---
+  const [vehicleList, setVehicleList] = useState([]);       // just the VEHICLE_NO strings, for the <select>
+  const [vehicleFullData, setVehicleFullData] = useState([]); // full records returned by the API
+  const [selectedVehicle, setSelectedVehicle] = useState(null); // the matched full record for the current VEHICLENO
+
+  // --- Read emp ID from localStorage (same pattern used elsewhere in the app) ---
   useEffect(() => {
-    const fetchVehicleData = async () => {
+    const persistRoot = localStorage.getItem("persist:root");
+    if (persistRoot) {
+      try {
+        const parsedPersist = JSON.parse(persistRoot);
+        const loginReducer = JSON.parse(parsedPersist.loginreducer);
+        setDetails(loginReducer.details);
+        setEmpId(loginReducer.details); // e.g. "RRP0001"
+      } catch (error) {
+        console.error("Error parsing persist:root data:", error);
+      }
+    }
+  }, []);
+
+  // --- Fetch vehicles for this emp, once empId is available ---
+  useEffect(() => {
+    if (!empId) return;
+
+    const fetchVehiclesByEmp = async () => {
       try {
         const response = await axios.get(
-          `https://gateentryapi.rrparkon.net:6008/Vehicle/GetAllVehicle`
+          `${apiURL}Vehicle/getVehicleByEmpOutward?id=${empId}`
         );
-        setVehicles(response.data);
+
+        // Filter out cancelled vehicles, if present
+        const activeVehicles = (response.data || []).filter(
+          (v) => v.IS_CANCELLED !== 1
+        );
+
+        setVehicleFullData(activeVehicles);
+        setVehicleList(activeVehicles.map((v) => v.VEHICLE_NO));
         setLoading(false);
       } catch (err) {
         setErrors(err.message || "Something went wrong");
@@ -67,77 +99,64 @@ function HomeWithoutPO(props) {
       }
     };
 
-    // Only fetch data if podata and VEHICLENO are defined
+    fetchVehiclesByEmp();
+  }, [empId]);
 
-    fetchVehicleData();
-
-    // Include only stable dependencies
-  }, []);
-
-
-
-
-
-  function formatToISODateTime(dateString) {
-    // Convert the custom date string to a Date object
-    const dateObject = parseCustomDate(dateString);
-
-    // Format the Date object to 'YYYY-MM-DDTHH:mm'
-    const isoFormatted = dateObject.toISOString().slice(0, 16);
-
-    return isoFormatted;
-  }
-
-  // Helper function: Converts custom date format to a Date object
-  function parseCustomDate(dateString) {
-    const [datePart, timePart] = dateString.split(", ");
-    const [day, month, year] = datePart.split("/").map(Number);
-    const [time, period] = timePart.split(" ");
-    let [hours, minutes, seconds] = time.split(":").map(Number);
-
-    if (period.toLowerCase() === "pm" && hours !== 12) hours += 12;
-    if (period.toLowerCase() === "am" && hours === 12) hours = 0;
-
-    return new Date(
-      `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
-    );
-  }
-
+  // --- When a vehicle is selected from the dropdown, find its full record ---
+  // (mirrors DetailPO's separate "fetch vehicle by VEHICLENO" step, but since
+  // getVehicleByEmpOutward already returns full records in one call, this is
+  // a local lookup instead of a second network request.)
   useEffect(() => {
-    if (vehicles.length > 0) {
-      const newData = {
-        DRIVERNAME: filteredVehicle?.DRIVER_NAME || data.DRIVERNAME,
-        MOT: filteredVehicle?.MODE_OF_TRANSPORT || data.MOT,
-        VEHCAT: filteredVehicle?.VEHICLE_CATEGORY || data.VEHCAT,
-        ROADPERMIT: filteredVehicle?.ROAD_PERMIT_NUMBER || data.ROADPERMIT,
-        LR: filteredVehicle?.LR_NO || data.LR,
-        LRDATE: moment(filteredVehicle?.LR_DATE).format("YYYY-MM-DD") || data.LRDATE,
-        MOBILE: filteredVehicle?.DRIVER_MOBILE_NO || data.MOBILE,
-        VEHICLEREPDATE: filteredVehicle?.VEHICLE_REPORTING_TIME
-          ? new Date(filteredVehicle?.VEHICLE_REPORTING_TIME).toISOString().slice(0, 16)
-          : data.VEHICLEREPDATE,
-        VEHICLE_KEY: filteredVehicle?.VEHICLE_KEY || data.VEHICLE_KEY
-      };
-
-      // Update state only if the new data differs from the existing state
-      if (
-        data.DRIVERNAME !== newData.DRIVERNAME ||
-        data.MOT !== newData.MOT ||
-        data.VEHCAT !== newData.VEHCAT ||
-        data.ROADPERMIT !== newData.ROADPERMIT ||
-        data.LR !== newData.LR_NO ||
-        data.LRDATE !== newData.LRDATE ||
-        data.MOBILE !== newData.MOBILE ||
-        data.VEHICLEREPDATE !== newData.VEHICLEREPDATE
-      ) {
-        setdata((prev) => ({
-          ...prev,
-          ...newData,
-
-        }));
-      }
+    if (!data.VEHICLENO || vehicleFullData.length === 0) {
+      setSelectedVehicle(null);
+      return;
     }
-  }, [vehicles, filteredVehicle]); // Add `data` to avoid stale state issues
+
+    const matched = vehicleFullData.find(
+      (v) => v.VEHICLE_NO?.toLowerCase() === data.VEHICLENO?.toLowerCase()
+    );
+
+    setSelectedVehicle(matched || null);
+  }, [data.VEHICLENO, vehicleFullData]);
+
+  // --- Autofill the form when selectedVehicle changes (same pattern as DetailPO) ---
+  useEffect(() => {
+    if (!selectedVehicle) return;
+
+    const newData = {
+      DRIVERNAME: selectedVehicle.DRIVER_NAME || data.DRIVERNAME,
+      MOT: selectedVehicle.MODE_OF_TRANSPORT || data.MOT,
+      VEHCAT: selectedVehicle.VEHICLE_CATEGORY || data.VEHCAT,
+      ROADPERMIT: selectedVehicle.ROAD_PERMIT_NUMBER || data.ROADPERMIT,
+      LR: selectedVehicle.LR_NO || data.LR,
+      LRDATE: selectedVehicle.LR_DATE
+        ? moment(selectedVehicle.LR_DATE).format("YYYY-MM-DD")
+        : data.LRDATE,
+      MOBILE: selectedVehicle.DRIVER_MOBILE_NO || data.MOBILE,
+     VEHICLEREPDATE: selectedVehicle.VEHICLE_REPORTING_TIME
+        ? formatToLocalDateTimeInput(selectedVehicle.VEHICLE_REPORTING_TIME)
+        : data.VEHICLEREPDATE,
+      VEHICLE_KEY: selectedVehicle.VEHICLE_KEY || data.VEHICLE_KEY,
+    };
+
+    // Update state only if the new data differs from the existing state
+    if (
+      data.DRIVERNAME !== newData.DRIVERNAME ||
+      data.MOT !== newData.MOT ||
+      data.VEHCAT !== newData.VEHCAT ||
+      data.ROADPERMIT !== newData.ROADPERMIT ||
+      data.LR !== newData.LR ||
+      data.LRDATE !== newData.LRDATE ||
+      data.MOBILE !== newData.MOBILE ||
+      data.VEHICLEREPDATE !== newData.VEHICLEREPDATE
+    ) {
+      setdata((prev) => ({
+        ...prev,
+        ...newData,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVehicle]);
 
   const [error, seterror] = useState({});
   const [motList, setMotList] = useState([{ name: "", id: "" }]);
@@ -147,10 +166,8 @@ function HomeWithoutPO(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`);
-      const response1 = await fetch(
-        `https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`
-      );
+      const response = await fetch(`${apiURL}Employee/mot`);
+      const response1 = await fetch(`${apiURL}Employee/vehicle_category`);
       const newData = await response.json();
       setMotList(newData);
       const newData1 = await response1.json();
@@ -162,20 +179,10 @@ function HomeWithoutPO(props) {
   const handleFileChange = (event) => {
     const file = Array.from(event.target.files);
     setSelectedFile((prevFiles) => [...prevFiles, ...file]);
-    // Update the ATTACHMENT field in `data` state
     setdata((prevData) => ({
       ...prevData,
-      ATTACHMENT: file, // You can modify this if you want to store file paths or names instead
+      ATTACHMENT: file,
     }));
-
-  };
-
-  const handleFileUpload = () => {
-    if (selectedFile) {
-      // console.log("Uploading file:", selectedFile);
-    } else {
-      // console.log("No file selected");
-    }
   };
 
   const handlePreview = (file) => {
@@ -186,38 +193,8 @@ function HomeWithoutPO(props) {
   const removeFile = (index) => {
     setSelectedFile((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
-  useEffect(() => {
-    const persistRoot = localStorage.getItem("persist:root");
-    if (persistRoot) {
-      try {
-        const parsedPersist = JSON.parse(persistRoot); // Parse the JSON string
-        const loginReducer = JSON.parse(parsedPersist.loginreducer); // Parse loginReducer
-        setDetails(loginReducer.details); // Update state with `details`
-      } catch (error) {
-        console.error("Error parsing persist:root data:", error);
-      }
-    }
-  }, []);
 
   const setValue = (val) => {
-    // console.log("VehicleNo", val.VEHICLENO);
-    const inputValue = val.VEHICLENO
-    setSearchInput(inputValue)
-    // if (inputValue?.trim() === "") {
-
-    //   setFilteredVehicle(null);
-
-    //   return;
-
-    // }
-    const matchedVehicle = vehicles.find(
-
-      (vehicle) =>
-
-        vehicle?.VEHICLE_NO?.toLowerCase() === inputValue?.toLowerCase()
-    );
-    setFilteredVehicle(matchedVehicle || null);
-
     setdata({ ...data, ...val });
   };
 
@@ -231,16 +208,12 @@ function HomeWithoutPO(props) {
     setValue({ VEHCAT: event.target.value });
   };
 
-  // console.log("senddata", podata, data, selectedFile);
-
-
   const handleSubmit = () => {
     let hasErr = false;
 
-   let require = [
+    let require = [
       "INVOICE",
       "DOCDATE",
-      // "VENDORNAME",
       "DRIVERNAME",
       "MOBILE",
       "MOT",
@@ -253,12 +226,12 @@ function HomeWithoutPO(props) {
     let err = {
       INVOICE: null,
       DOCDATE: null,
-      // VENDORNAME: null,
       DRIVERNAME: null,
       MOBILE: null,
       MOT: null,
       VEHICLENO: null,
       VEHCAT: null,
+      ROADPERMIT: null,
       LR: null,
       LRDATE: null,
       VEHICLEREPDATE: null,
@@ -272,29 +245,29 @@ function HomeWithoutPO(props) {
       }
     });
 
-    if (data.LR.length < 15) {
+    if (data.LR && data.LR.length < 15) {
       err.LR = "Minimum length should be 15 characters";
     }
-    if (data.MOBILE.length < 10) {
+    if (data.MOBILE && data.MOBILE.length < 10) {
       err.MOBILE = "Minimum length should be 10 characters";
     }
-    if (data.VEHICLENO.length < 9) {
+    if (data.VEHICLENO && data.VEHICLENO.length < 9) {
       err.VEHICLENO = "Minimum length should be 9 characters";
     }
-    // console.log("hasErr", hasErr);
+
     seterror(err);
     if (hasErr) {
-      toast.error("Please fill all the mandatory fields"); // Show error toast
+      toast.error("Please fill all the mandatory fields");
     } else {
       navigate("/Outward/RGP-RFA-Issue/Details", {
         state: { podata, data, selectedFile },
       });
     }
   };
+
   const [isFocused, setIsFocused] = useState({
     INVOICE: false,
     DOCDATE: false,
-    VENDORNAME: false,
     DRIVERNAME: false,
     MOBILE: false,
     MOT: false,
@@ -306,8 +279,6 @@ function HomeWithoutPO(props) {
     PACKAGES: false,
     VEHICLEREPDATE: false,
     INDATE: false,
-    // ATTACHMENT:false
-    // Add more fields as necessary
   });
 
   const inputStyle = {
@@ -318,8 +289,8 @@ function HomeWithoutPO(props) {
   };
 
   const focusStyle = {
-    borderBottom: "1px solid black", // Removes the border when focused
-    outline: "none", // Optionally remove the outline for focus
+    borderBottom: "1px solid black",
+    outline: "none",
   };
 
   const handleFocus = (field) => {
@@ -350,11 +321,10 @@ function HomeWithoutPO(props) {
         <h3 style={{ color: "#717171" }}>Transport Details :</h3>
         <div style={{ width: "80%", marginLeft: "150px" }}>
           <div className="row">
+            {/* --- Vehicle Number dropdown, fetched via emp ID, autofills the form --- */}
             <div className="input-group" style={{ paddingRight: "50px" }}>
               <label style={{ color: "#000000" }}>Vehicle Number*</label>
-              <input
-                type="text"
-                // // // maxLength={11}
+              <select
                 style={{
                   borderTop: "none",
                   borderLeft: "none",
@@ -367,13 +337,19 @@ function HomeWithoutPO(props) {
                 onChange={(e) => setValue({ VEHICLENO: e.target.value })}
                 onFocus={() => handleFocus("VEHICLENO")}
                 onBlur={() => handleBlur("VEHICLENO")}
-              />
+              >
+                <option value="">Select a vehicle</option>
+                {vehicleList.map((vehicleNo, index) => (
+                  <option key={index} value={vehicleNo}>
+                    {vehicleNo}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="input-group" style={{ paddingRight: "50px" }}>
               <label style={{ color: "#000000" }}>EWay Bill No.</label>
               <input
                 type="text"
-                // // maxLength={11}
                 style={{
                   borderTop: "none",
                   borderLeft: "none",
@@ -409,14 +385,11 @@ function HomeWithoutPO(props) {
                 onBlur={() => handleBlur("MOT")}
               >
                 <option value={""}>Please select Mode of Transport*</option>
-
-                {motList.map((plant) => {
-                  return (
-                    <option key={plant.LABLE} value={plant.LABLE}>
-                      {plant.LABLE}
-                    </option>
-                  );
-                })}
+                {motList.map((plant) => (
+                  <option key={plant.LABLE} value={plant.LABLE}>
+                    {plant.LABLE}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="input-group" style={{ paddingRight: "50px" }}>
@@ -438,13 +411,11 @@ function HomeWithoutPO(props) {
                 onBlur={() => handleBlur("VEHCAT")}
               >
                 <option value={""}>Please select Vehicle Category*</option>
-                {vcatList.map((plant) => {
-                  return (
-                    <option key={plant.LABLE} value={plant.LABLE}>
-                      {plant.LABLE}
-                    </option>
-                  );
-                })}
+                {vcatList.map((plant) => (
+                  <option key={plant.LABLE} value={plant.LABLE}>
+                    {plant.LABLE}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -459,7 +430,6 @@ function HomeWithoutPO(props) {
               <label style={{ color: "#000000" }}>Invoice Number*</label>
               <input
                 type="text"
-                // // maxLength={11}
                 style={{
                   borderTop: "none",
                   borderLeft: "none",
@@ -468,9 +438,7 @@ function HomeWithoutPO(props) {
                   ...inputStyle,
                   ...(isFocused.INVOICE ? focusStyle : {}),
                 }}
-                // disabled
-                // value={podata[0].PO_NO}
-                // disabled
+                value={data.INVOICE}
                 onChange={(e) => setValue({ INVOICE: e.target.value })}
                 onFocus={() => handleFocus("INVOICE")}
                 onBlur={() => handleBlur("INVOICE")}
@@ -488,6 +456,7 @@ function HomeWithoutPO(props) {
                   ...inputStyle,
                   ...(isFocused.DOCDATE ? focusStyle : {}),
                 }}
+                value={data.DOCDATE}
                 onChange={(e) => setValue({ DOCDATE: e.target.value })}
                 onFocus={() => handleFocus("DOCDATE")}
                 onBlur={() => handleBlur("DOCDATE")}
@@ -499,7 +468,6 @@ function HomeWithoutPO(props) {
               <label style={{ color: "#000000" }}>LR Number*</label>
               <input
                 type="text"
-                // // maxLength={11}
                 style={{
                   borderTop: "none",
                   borderLeft: "none",
@@ -562,7 +530,6 @@ function HomeWithoutPO(props) {
               <label style={{ color: "#000000" }}>Transporter Mobile No.*</label>
               <input
                 type="text"
-                // // maxLength={11}
                 style={{
                   borderTop: "none",
                   borderLeft: "none",
@@ -671,17 +638,9 @@ function HomeWithoutPO(props) {
                       alignItems: "center",
                       fontSize: "14px",
                       padding: "4px 10px",
-                      cursor: "pointer",
-                      borderRadius: "20px",
-                      border: "1px solid black",
-                      display: "flex",
-                      alignItems: "center",
-                      fontSize: "14px",
-                      padding: "4px 10px",
                     }}
                   >
                     <span onClick={() => handlePreview(file)}>{file.name}</span>
-
                     <img
                       src="/Images/Cross.png"
                       style={{
@@ -711,11 +670,9 @@ function HomeWithoutPO(props) {
             color: "white",
             width: "150px",
             height: "45px",
-            // marginTop: "20px",
             cursor: "pointer",
             marginTop: "40px",
             marginRight: "30px",
-            // marginLeft:"1000px",
             marginBottom: "20px",
           }}
         >
@@ -734,7 +691,5 @@ const mapStateToProps = (state) => {
     VehicleInfo: state?.entryReducer?.vehicleData
   }
 }
-
-// export default HomeWithoutPO
 
 export default connect(mapStateToProps, { getVehicleDetails })(HomeWithoutPO)

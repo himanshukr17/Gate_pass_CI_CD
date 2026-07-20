@@ -63,7 +63,7 @@ function DetailsNRGPout(props) {
       const fetchAllVehicle = async () => {
         try {
           const response = await axios.get(
-            `https://gateentryapi.rrparkon.net:6008/Vehicle/getOutwardVehicle?plant=${podata[0]?.PLANT}`
+            `${apiURL}Vehicle/getOutwardVehicle?plant=${podata[0]?.PLANT}`
           );
           const vehicleNo = response.data.map((item) => item.VEHICLE_NO);
           setVehicleList(vehicleNo);
@@ -140,9 +140,9 @@ function DetailsNRGPout(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`);
+      const response = await fetch(`${apiURL}Employee/mot`);
       const response1 = await fetch(
-        `https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`
+        `${apiURL}Employee/vehicle_category`
       );
       const newData = await response.json();
       setMotList(newData);

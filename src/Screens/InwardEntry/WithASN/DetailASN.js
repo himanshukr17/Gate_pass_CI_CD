@@ -7,6 +7,8 @@ import Footer from "../../../Components/Footer";
 import moment from "moment";
 import toast, { Toaster } from 'react-hot-toast';
 
+const apiURL = process.env.REACT_APP_API_URL
+
 const DetailPO = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,8 +49,8 @@ const DetailPO = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/mot`);
-        const response1 = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/vehicle_category`);
+        const response = await fetch(`${apiURL}/Employee/mot`);
+        const response1 = await fetch(`${apiURL}/Employee/vehicle_category`);
         const newData = await response.json();
         setMotList(newData);
         const newData1 = await response1.json();

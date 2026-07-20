@@ -4,6 +4,9 @@ import ReportTable from "../../../Components/ReportTable";
 import Header from "../../../Components/Header";
 import { Link } from "react-router-dom";
 
+const apiURL = process.env.REACT_APP_API_URL
+
+
 const UserReport = () => {
 
   const [data, setData] = useState([])
@@ -14,7 +17,7 @@ const UserReport = () => {
   const userReportData = async () => {
     try {
       console.log("Api call")
-      const res = await axios.get("https://gateentryapi.rrparkon.net:6008/Employee/getAllUser")
+      const res = await axios.get(`${apiURL}/Employee/getAllUser`)
       console.log("Api call Response:", res.data)
 
       if (res.data && Array.isArray(res.data)) {
@@ -167,7 +170,7 @@ const UserReport = () => {
 
       await Promise.all(
         selectedRows.map(empId =>
-          axios.post(`https://gateentryapi.rrparkon.net:6008/Employee/changeFlag`, {
+          axios.post(`${apiURL}/Employee/changeFlag`, {
             ID: empId,
             FLAG: flagValue
           })

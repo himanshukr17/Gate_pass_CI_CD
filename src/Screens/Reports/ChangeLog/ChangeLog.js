@@ -6,6 +6,7 @@ import ReportTable from "../../../Components/ReportTable";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+const apiURL = process.env.REACT_APP_API_URL
 
 const ChangeLog = () => {
 
@@ -83,7 +84,7 @@ const ChangeLog = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`https://gateentryapi.rrparkon.net:6008/Entry/GetAllEntry`);
+      const response = await axios.get(`${apiURL}Entry/GetAllEntry`);
       console.log("response", response.data);
   
       setVehicleData(response.data);
@@ -145,8 +146,8 @@ const ChangeLog = () => {
     const bodytoSend = {
       REMARK: data
     }
-    const apiUrl = `https://gateentryapi.rrparkon.net:6008/Entry/cancelEntry?id=${selectedRow.gatePass}`;
-    // console.log("API final call cancel", `https://gateentryapi.rrparkon.net:6008/Entry/cancelEntry?id=${selectedRow.gatePass}`)
+    const apiUrl = `${apiURL}Entry/cancelEntry?id=${selectedRow.gatePass}`;
+    // console.log("API final call cancel", `${apiURL}Entry/cancelEntry?id=${selectedRow.gatePass}`)
     try {
       const response = await axios.post(apiUrl, bodytoSend, {
         headers: {
@@ -173,7 +174,7 @@ const ChangeLog = () => {
   
 
   const handleEdit = async (row) => {
-    const apiUrl = `https://gateentryapi.rrparkon.net:6008/Entry/changeIndicator?id=${row.gatePass}&key=${row.vehicleKey}`;
+    const apiUrl = `${apiURL}Entry/changeIndicator?id=${row.gatePass}&key=${row.vehicleKey}`;
     // console.log(apiUrl);
     try {
       const response = await axios.get(apiUrl);
@@ -192,7 +193,7 @@ const ChangeLog = () => {
 
   const handleSpecialCase = async (row) => {
     console.log("api ",row.vehicleKey)
-    const apiUrl = `https://gateentryapi.rrparkon.net:6008/Entry/changeCancelIndicator?key=${row.vehicleKey}`;
+    const apiUrl = `${apiURL}Entry/changeCancelIndicator?key=${row.vehicleKey}`;
     try {
       const response = await axios.get(apiUrl);
 

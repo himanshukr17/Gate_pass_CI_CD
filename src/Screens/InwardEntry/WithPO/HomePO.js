@@ -7,6 +7,7 @@ import { Button, Dialog, DialogContent, DialogActions, TextField } from '@mui/ma
 import { PoData,AsnData } from '../../../redux/action/PoData';
 import { connect } from 'react-redux';
 import toast from 'react-hot-toast';
+const apiURL = process.env.REACT_APP_API_URL
 
 function HomePO(props) {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ function HomePO(props) {
     if (!details) return;
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://gateentryapi.rrparkon.net:6008/Employee/allocated_plant?id=${details}`);
+        const response = await fetch(`${apiURL}Employee/allocated_plant?id=${details}`);
         const newData = await response.json();
 
         setPlantList(newData);
@@ -291,5 +292,5 @@ props.AsnData({ asn })
     </>
   );
 }
-
 export default connect(null, { PoData,AsnData })(HomePO);
+

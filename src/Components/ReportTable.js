@@ -16,10 +16,15 @@ const ReportTable = ({ headers, data, buttonComponent, csvButtonComponent }) => 
     const [searchQuery, setSearchQuery] = useState("");
 
     // Function to handle pagination logic
+    // const paginateData = () => {
+    //     const indexOfLastItem = currentPage * itemsPerPage;
+    //     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    //     return data.slice(indexOfFirstItem, indexOfLastItem);
+    // };
     const paginateData = () => {
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-        return data.slice(indexOfFirstItem, indexOfLastItem);
+        return filteredData.slice(indexOfFirstItem, indexOfLastItem);
     };
 
     // Function to handle search functionality
@@ -49,10 +54,10 @@ const ReportTable = ({ headers, data, buttonComponent, csvButtonComponent }) => 
         } else if (status === "Completed") {
             statusClass = "completed";
         }
-        else if(status == "Pending for PO Approval"){
+        else if (status == "Pending for PO Approval") {
             statusClass = "pendingPO"
         }
-        else if(status  == "Pending Cancel"){
+        else if (status == "Pending Cancel") {
             statusClass = "pendingCancel"
         }
         else if (status === "Cancelled") {
@@ -72,9 +77,16 @@ const ReportTable = ({ headers, data, buttonComponent, csvButtonComponent }) => 
     };
 
     // Filtered data based on search query
+    const getSearchableValue = (value) => {
+        if (React.isValidElement(value)) {
+            return String(value.props.children ?? "");
+        }
+        return String(value ?? "");
+    };
+
     const filteredData = data.filter((row) =>
         headers.some((header) =>
-            String(row[header.dataKey])
+            getSearchableValue(row[header.dataKey])
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase())
         )
@@ -120,7 +132,7 @@ const ReportTable = ({ headers, data, buttonComponent, csvButtonComponent }) => 
             >
                 <div>{buttonComponent}</div> {/* Render the passed button component */}
                 <div style={{ display: "flex", alignItems: "center" }}>
-                {csvButtonComponent && <div className="csv-download">{csvButtonComponent}</div>}
+                    {csvButtonComponent && <div className="csv-download">{csvButtonComponent}</div>}
 
                     <input
                         style={{
