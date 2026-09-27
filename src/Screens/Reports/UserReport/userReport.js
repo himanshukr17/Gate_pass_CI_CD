@@ -17,7 +17,7 @@ const UserReport = () => {
   const userReportData = async () => {
     try {
       console.log("Api call")
-      const res = await axios.get(`${apiURL}/Employee/getAllUser`)
+      const res = await axios.get(`${apiURL}Employee/getAllUser`)
       console.log("Api call Response:", res.data)
 
       if (res.data && Array.isArray(res.data)) {
@@ -36,7 +36,7 @@ const UserReport = () => {
             : "N/A",
           email: item.EMAIL || "N/A",
           mobile: item.MOBILE || "N/A",
-          password:item.PASSWORD || "N/A",
+          password: item.PASSWORD || "N/A",
           role: Array.isArray(item.ISADMIN)
             ? item.ISADMIN.map(id => roleMapping[id] || "Unknown")
             : []
@@ -170,7 +170,7 @@ const UserReport = () => {
 
       await Promise.all(
         selectedRows.map(empId =>
-          axios.post(`${apiURL}/Employee/changeFlag`, {
+          axios.post(`${apiURL}Employee/changeFlag`, {
             ID: empId,
             FLAG: flagValue
           })

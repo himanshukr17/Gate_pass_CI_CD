@@ -148,9 +148,9 @@ function DetailSTOout(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(`${apiURL}/Employee/mot`);
+      const response = await fetch(`${apiURL}Employee/mot`);
       const response1 = await fetch(
-        `${apiURL}/Employee/vehicle_category`
+        `${apiURL}Employee/vehicle_category`
       );
       const newData = await response.json();
       setMotList(newData);

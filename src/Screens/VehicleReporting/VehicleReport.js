@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../../Stylesheet/Details.scss";
 import "../../Stylesheet/Report.scss";
+import "./VehicleReport.css";
+import "../Dashboard/Home.css";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { Link, useNavigate } from "react-router-dom";
@@ -465,7 +467,7 @@ function VehicleReport(props) {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3045/Vehicle/getVehicleById?id=${details}`
+        `${apiURL}Vehicle/getVehicleById?id=${details}`
       );
       if (response.data) {
         console.log("Reponse", response.data);
@@ -587,7 +589,7 @@ function VehicleReport(props) {
   }));
 
   const handleEdit = async (row) => {
-    const apiUrl = `http://localhost:3045/Vehicle/ChangeFlag?VEHICLE_NO=${row.vehicaleNo}&FLAG=0&MODE=${row.mode}`;
+    const apiUrl = `${apiURL}Vehicle/ChangeFlag?VEHICLE_NO=${row.vehicaleNo}&FLAG=0&MODE=${row.mode}`;
     try {
       const response = await axios.get(apiUrl);
       if (response.status === 200) {
@@ -638,27 +640,163 @@ function VehicleReport(props) {
     setIsFocused((prev) => ({ ...prev, [field]: false }));
   };
 
-  return (
-    <>
-      <Header />
-      <div
-        className="path"
-        style={{
-          fontSize: "15px",
-          fontWeight: "bold",
-          color: "#1897ce",
-          margin: "5px 0px 0px 60px",
-        }}
-      >
-        <Link to="/Home" style={{ textDecoration: "none", color: "#1897ce" }}>
-          Home
-        </Link>{" "}
-        / Vehicle Report
-      </div>
 
-      <div style={{ padding: "15px" }}>
-        <Toaster />
-        {isCancelModalOpen && (
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const showName = localStorage.getItem("EMP_NAME") || "User";
+  const [activeTab, setActiveTab] = useState("All");
+  const [weighbridge, setWeighbridge] = useState(true);
+
+  const formatTime = (d) => {
+    if (!d) return "";
+    return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  };
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const navItems = [
+    { id: "dashboard", label: "Operations Dashboard", action: () => navigate("/Home"), icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
+    { id: "register", label: "Gate Pass Register", action: () => navigate("/Reports/Register"), icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
+    { id: "vehicle", label: "Vehicle Reporting", action: () => {}, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
+    { id: "newgate", label: "New Gate Entry", action: () => {}, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> },
+    { id: "plant", label: "Plant & User Access", action: () => {}, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+  ];
+
+  const filteredData = tableData.filter(row => {
+    if (activeTab === "Truck-MCV") return row.vehicleType?.includes("MCV");
+    if (activeTab === "Truck-HCV") return row.vehicleType?.includes("HCV");
+    if (activeTab === "Pick UP") return row.vehicleType?.toLowerCase().includes("pick");
+    return true;
+  });
+
+  return (
+    <div className="hm-root">
+      <header className="hm-topbar">
+        <div className="hm-topbar-left">
+          <button className="hm-sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div className="hm-brand">
+            <img src="/Images/Frame_logo.png" alt="Logo" className="hm-brand-logo" />
+            <div><div className="hm-brand-name">GateAccess Pro</div><div className="hm-brand-sub">YARD LOGISTICS OS</div></div>
+          </div>
+        </div>
+        <div className="hm-topbar-right">
+          <div className="hm-topbar-time">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {formatTime(time)} IST
+          </div>
+          <div className="hm-shift-badge">Shift A</div>
+          <div className="hm-user-chip">
+            <div className="hm-avatar">{showName.charAt(0).toUpperCase()}</div>
+            <div><div className="hm-user-name">{showName}</div><div className="hm-user-role">Admin Dispatcher</div></div>
+          </div>
+        </div>
+      </header>
+
+      <div className="hm-body">
+        <aside className={`hm-sidebar${sidebarOpen ? "" : " hm-sidebar-collapsed"}`}>
+          <div className="hm-sidebar-section-label">OPERATIONS COMMAND</div>
+          <nav className="hm-sidebar-nav">
+            {navItems.map((item) => (
+              <button key={item.id} className={`hm-nav-item${item.id === "vehicle" ? " active" : ""}`} onClick={item.action}>
+                <span className="hm-nav-icon">{item.icon}</span>
+                {sidebarOpen && <span className="hm-nav-label">{item.label}</span>}
+              </button>
+            ))}
+          </nav>
+          <div className="hm-sidebar-footer">
+            <div className="hm-terminal-info">
+              <div className="hm-terminal-dot"></div>
+              {sidebarOpen && <div><div className="hm-terminal-label">Active Terminal</div><div className="hm-terminal-name">GATEWAY #02</div><span className="hm-terminal-badge">INBOUND</span></div>}
+            </div>
+            {sidebarOpen && <div className="hm-version">v2.8.4-R3</div>}
+          </div>
+        </aside>
+
+        <main className="hm-main" style={{padding: 0, backgroundColor: "#f8fafc"}}>
+          <div className="vr-root">
+            <div className="vr-title-row">
+              <div className="vr-title-left">
+                <h1>Vehicle Reporting & Security Gate Queue</h1>
+                <div className="vr-status-badges">
+                  <div className="vr-badge-blue"><span className="dot"></span> {tableData.length} Trucks at Bay</div>
+                  <div className="vr-badge-light">{tableData.filter(d=>d.status?.includes("Pending")).length} Pending</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="vr-table-controls">
+              <div className="vr-controls-left">
+                <button className="vr-btn-primary" onClick={openModal}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  + Add Vehicle Details
+                </button>
+                <div className="vr-tabs">
+                  <button className={`vr-tab ${activeTab==="All"?"active":""}`} onClick={()=>setActiveTab("All")}>All ({tableData.length})</button>
+                  <button className={`vr-tab ${activeTab==="Truck-MCV"?"active":""}`} onClick={()=>setActiveTab("Truck-MCV")}>Truck-MCV</button>
+                  <button className={`vr-tab ${activeTab==="Truck-HCV"?"active":""}`} onClick={()=>setActiveTab("Truck-HCV")}>Truck-HCV</button>
+                  <button className={`vr-tab ${activeTab==="Pick UP"?"active":""}`} onClick={()=>setActiveTab("Pick UP")}>Pick UP</button>
+                </div>
+              </div>
+              <div className="vr-controls-right">
+                <div className="vr-search">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" placeholder="Search plate, driver, mobile..." />
+                </div>
+                <button className="vr-refresh-btn" onClick={fetchData}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="vr-table-wrapper">
+              <table className="vr-table">
+                <thead><tr>
+                  <th>TYPE</th><th>VEHICLE NO</th><th>VEHICLE TYPE</th>
+                  <th>DRIVER</th><th>MOBILE</th><th>REPORTED AT</th><th>STATUS</th><th>ACTIONS</th>
+                </tr></thead>
+                <tbody>
+                  {filteredData.map((row, i) => (
+                    <tr key={i}>
+                      <td><span className={`vr-type-badge ${row.type?.toLowerCase()}`}><span className="dot"></span>{row.type}</span></td>
+                      <td><span className="vr-veh-no">{row.vehicaleNo}</span></td>
+                      <td>{row.vehicleType}</td>
+                      <td>{row.driverName}</td>
+                      <td>{row.driverMobile}</td>
+                      <td>{row.dateTime}</td>
+                      <td><span className="vr-status-badge"><span className="dot"></span>{row.status}</span></td>
+                      <td>
+                        <div className="vr-actions-cell">
+                          <button className="vr-btn-start"
+                            disabled={!((row.status==="Pending for Unloading"||row.status==="Pending for Loading")&&row.cancel===0)}
+                            onClick={()=>handleEdit(row)}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Start
+                          </button>
+                          <button className="vr-btn-cancel"
+                            disabled={!((row.status==="Pending for Unloading"||row.status==="Pending for Loading")&&row.cancel===0)}
+                            onClick={()=>openCancelModal(row)}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            Cancel
+                          </button>
+                          <button className="vr-btn-icon"
+                            disabled={row.status!=="Pending for PO Approval"}
+                            onClick={()=>{if(row.status==="Pending for PO Approval")handleStatusClick(row);}}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>{/* /vr-table-wrapper */}
+          </div>{/* /vr-root */}
+          <Toaster />
+          {isCancelModalOpen && (
           <div
             style={{
               position: "fixed",
@@ -866,103 +1004,46 @@ function VehicleReport(props) {
           </div>
         )}
 
-        <ReportTable
-          headers={tableHeaders}
-          data={modifiedData}
-          buttonComponent={
-            !admin.includes("3") ? (
-              <button
-                className="feildBtn"
-                onClick={openModal}
-                style={{
-                  width: "15rem",
-                  backgroundColor: "#007BFF",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 10px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
-                + Add Vehicle Details
-              </button>
-            ) : null
-          }
-        />
-      </div>
+        </main>{/* /hm-main */}
+      </div>{/* /hm-body */}
 
+      {/* ── Add Vehicle Modal ── */}
       {isModalOpen && (
-        <div
-          className="custom-modal-overlay"
-          style={{
-            position: "fixed",
-            top: "0%",
-            left: "0%",
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: "1000",
-          }}
-        >
-          <div
-            className="custom-modal"
-            style={{
-              backgroundColor: "white",
-              borderRadius: "8px",
-              padding: "0px 0px 30px 0px",
-              width: "50%",
-              height: "90%",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div
-              style={{
-                backgroundImage:
-                  "linear-gradient(135deg, #198BC6 10%,rgb(18, 89, 125) 100%)",
-                padding: "10px",
-                color: "white",
-                borderRadius: "5px 5px 0px 0px",
-              }}
-            >
-              <span style={{ fontWeight: "bold", fontSize: "1.0rem" }}>
-                Add Vehicle Details
-                <button
-                  onClick={closeModal}
-                  style={{
-                    backgroundColor: "transparent",
-                    color: "red",
-                    border: "none",
-                    padding: "2px 5px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    position: "absolute",
-                    top: "2px",
-                    right: "10px",
-                    fontSize: "2rem",
-                  }}
-                >
-                  ×
-                </button>
-              </span>
+        <div className="av-overlay">
+          <div className="av-modal">
+            {/* Header */}
+            <div className="av-header">
+              <div className="av-header-left">
+                <div className="av-header-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+                <div>
+                  <div className="av-header-title">Fast Gate Check-in — Add Vehicle Details</div>
+                  <div className="av-header-sub">Terminal 1102 Inward/Outward Registration</div>
+                </div>
+              </div>
+              <button className="av-close-btn" onClick={closeModal}>×</button>
             </div>
-            <div
-              className="InputBox3"
-              style={{
-                flex: 1,
-                overflowY: "auto",
-                padding: "20px",
-              }}
-            >
-              <div className="inner">
-                <div className="grid-container">
-                  <div className="inputFeildDesign">
-                    <p>Vehicle Number*</p>
+
+            {/* ANPR Banner */}
+            <div className="av-anpr-banner">
+              <div className="av-anpr-left">
+                <div className="av-anpr-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                </div>
+                <div className="av-anpr-text">
+                  <strong>ANPR Camera #2 Link Active</strong>
+                  <span>Gate camera pre-filled detected plate: <span className="av-anpr-plate">{data.VEHICLE_NO || "—"}</span></span>
+                </div>
+              </div>
+              <button className="av-apply-btn">Apply Plate</button>
+            </div>
+
+            {/* Form Body */}
+            <div className="av-body">
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"16px"}}>
+                  <div className="av-field">
+                    <label className="av-label">Vehicle Number <span className="av-required">*</span></label>
                     <input
                       type="text"
                       required
@@ -1011,8 +1092,8 @@ function VehicleReport(props) {
                     )}
                   </div>
 
-                  <div className="inputFeildDesign">
-                    <p>Name of Driver*</p>
+                  <div className="av-field">
+                    <label className="av-label">Name of Driver <span className="av-required">*</span></label>
                     <input
                       type="text"
                       placeholder="Please enter Driver Name"
@@ -1021,14 +1102,7 @@ function VehicleReport(props) {
                         setValue({ DRIVER_NAME: text.target.value }),
                         seterror({ ...error, DRIVER_NAME: "" })
                       )}
-                      style={{
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                        borderBottom: "1px solid black",
-                        ...inputStyle,
-                        ...(isFocused.DRIVER_NAME ? focusStyle : {}),
-                      }}
+                      className="av-input"
                       onFocus={() => handleFocus("DRIVER_NAME")}
                       onBlur={() => handleBlur("DRIVER_NAME")}
                     />
@@ -1036,9 +1110,9 @@ function VehicleReport(props) {
                   </div>
                 </div>
 
-                <div className="grid-container">
-                  <div className="inputFeildDesign">
-                    <p htmlFor="mobileNumber">Driver Mobile Number*</p>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"16px"}}>
+                  <div className="av-field">
+                    <label className="av-label" htmlFor="mobileNumber">Driver Mobile Number <span className="av-required">*</span></label>
                     <input
                       type="text"
                       id="mobileNumber"
@@ -1066,14 +1140,7 @@ function VehicleReport(props) {
                         }
                       }}
                       placeholder="Enter 10-digit mobile Number"
-                      style={{
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                        borderBottom: "1px solid black",
-                        ...inputStyle,
-                        ...(isFocused.DRIVER_MOBILE_NO ? focusStyle : {}),
-                      }}
+                      className="av-input"
                       onFocus={() => handleFocus("DRIVER_MOBILE_NO")}
                       onBlur={() => handleBlur("DRIVER_MOBILE_NO")}
                     />
@@ -1090,8 +1157,8 @@ function VehicleReport(props) {
                     )}
                   </div>
 
-                  <div className="inputFeildDesign">
-                    <p>Mode of Transport*</p>
+                  <div className="av-field">
+                    <label className="av-label">Mode of Transport <span className="av-required">*</span></label>
                     <div style={{ width: "88%" }}>
                       <Select
                         styles={{
@@ -1151,9 +1218,9 @@ function VehicleReport(props) {
                   </div>
                 </div>
 
-                <div className="grid-container">
-                  <div className="inputFeildDesign">
-                    <p>Vehicle Category*</p>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"16px"}}>
+                  <div className="av-field">
+                    <label className="av-label">Vehicle Category <span className="av-required">*</span></label>
                     <div style={{ width: "88%" }}>
                       <Select
                         styles={{
@@ -1212,8 +1279,8 @@ function VehicleReport(props) {
                     </div>
                   </div>
 
-                  <div className="inputFeildDesign">
-                    <p>EWay Bill No.</p>
+                  <div className="av-field">
+                    <label className="av-label">EWay Bill No.</label>
                     <input
                       type="text"
                       placeholder="Please enter EWay Bill Number"
@@ -1224,14 +1291,7 @@ function VehicleReport(props) {
                         }),
                         seterror({ ...error, ROAD_PERMIT_NUMBER: "" })
                       )}
-                      style={{
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                        borderBottom: "1px solid black",
-                        ...inputStyle,
-                        ...(isFocused.ROAD_PERMIT_NUMBER ? focusStyle : {}),
-                      }}
+                      className="av-input"
                       onFocus={() => handleFocus("ROAD_PERMIT_NUMBER")}
                       onBlur={() => handleBlur("ROAD_PERMIT_NUMBER")}
                     />
@@ -1239,9 +1299,9 @@ function VehicleReport(props) {
                   </div>
                 </div>
 
-                <div className="grid-container">
-                  <div className="inputFeildDesign">
-                    <p>Plant*</p>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"16px"}}>
+                  <div className="av-field">
+                    <label className="av-label">Plant <span className="av-required">*</span></label>
                     <div style={{ width: "88%" }}>
                       <Select
                         styles={{
@@ -1276,8 +1336,8 @@ function VehicleReport(props) {
                     </div>
                   </div>
 
-                  <div className="inputFeildDesign">
-                    <p>LR Number</p>
+                  <div className="av-field">
+                    <label className="av-label">LR Number</label>
                     <input
                       type="text"
                       onChange={(text) => (
@@ -1285,14 +1345,7 @@ function VehicleReport(props) {
                         seterror({ ...error, LR_NO: "" })
                       )}
                       placeholder="Please enter LR Number"
-                      style={{
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                        borderBottom: "1px solid black",
-                        ...inputStyle,
-                        ...(isFocused.LR_NO ? focusStyle : {}),
-                      }}
+                      className="av-input"
                       onFocus={() => handleFocus("LR_NO")}
                       onBlur={() => handleBlur("LR_NO")}
                     />
@@ -1300,9 +1353,9 @@ function VehicleReport(props) {
                   </div>
                 </div>
 
-                <div className="grid-container">
-                  <div className="inputFeildDesign">
-                    <p>LR Date</p>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"16px"}}>
+                  <div className="av-field">
+                    <label className="av-label">LR Date</label>
                     <input
                       type="date"
                       required
@@ -1313,14 +1366,7 @@ function VehicleReport(props) {
                         seterror({ ...error, LR_DATE: "" })
                       )}
                       placeholder="Please enter LR Date"
-                      style={{
-                        borderTop: "none",
-                        borderLeft: "none",
-                        borderRight: "none",
-                        borderBottom: "1px solid black",
-                        ...inputStyle,
-                        ...(isFocused.LR_DATE ? focusStyle : {}),
-                      }}
+                      className="av-input"
                       onFocus={() => handleFocus("LR_DATE")}
                       onBlur={() => handleBlur("LR_DATE")}
                     />
@@ -1328,8 +1374,8 @@ function VehicleReport(props) {
                       <span className="error">{error.LR_DATE}</span>
                     )}
                   </div>
-                  <div className="inputFeildDesign">
-                    <p>Type of Entry*</p>
+                  <div className="av-field">
+                    <label className="av-label">Type of Entry <span className="av-required">*</span></label>
                     <div style={{ width: "88%" }}>
                       <Select
                         styles={{
@@ -1392,8 +1438,8 @@ function VehicleReport(props) {
 
                 {ModeType && ModeType.value === 0 && (
                   <div className="grid-container" style={{ display: 'grid', gridTemplateColumns: '1fr' }}>
-                    <div className="inputFeildDesign" style={{ maxWidth: '50%' }}>
-                      <p>PO Number*</p>
+                    <div className="av-field">
+                      <label className="av-label">PO Number <span className="av-required">*</span></label>
                       <input
                         type="text"
                         placeholder="Enter PO No. (comma separated)"
@@ -1412,14 +1458,7 @@ function VehicleReport(props) {
                             .filter(Boolean);
                           setValue({ PO_NUMBER: arrayOfPOs });
                         }}
-                        style={{
-                          borderTop: "none",
-                          borderLeft: "none",
-                          borderRight: "none",
-                          borderBottom: "1px solid black",
-                          ...inputStyle,
-                          ...(isFocused.PO_NUMBER ? focusStyle : {}),
-                        }}
+                        className="av-input"
                         onFocus={() => handleFocus("PO_NUMBER")}
                       />
                       {error.PO_NUMBER && <span className="error">{error.PO_NUMBER}</span>}
@@ -1427,28 +1466,25 @@ function VehicleReport(props) {
                   </div>
                 )}
               </div>
-            </div>
-            <div style={{ textAlign: "right", padding: "10px" }}>
-              <button
-                type="submit"
-                className="feildBtn"
-                onClick={handleSubmit}
-                style={{
-                  backgroundColor: "#007BFF",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
-                Submit
-              </button>
+
+            {/* Footer */}
+            <div className="av-footer">
+              <div className="av-footer-note">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Security Seal ID will be auto-generated
+              </div>
+              <div className="av-footer-btns">
+                <button className="av-cancel-btn" onClick={closeModal}>Cancel</button>
+                <button className="av-submit-btn" onClick={handleSubmit}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  Submit & Print Security Slip
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

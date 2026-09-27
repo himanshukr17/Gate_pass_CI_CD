@@ -44,11 +44,11 @@ function ItemFeildSTO(props) {
         newData.push({ ...item, BILLED_QTY: 0 });
       });
     });
-    console.log("newddddddddddd",newData);
+    console.log("newddddddddddd", newData);
     setda(newData);
   }, []);
 
-  console.log("daaaa",da)
+  console.log("daaaa", da)
   const col = [
     {
       Header: "PO Number",
@@ -83,14 +83,14 @@ function ItemFeildSTO(props) {
       accessor: "PO_QTY"
     },
     {
-     Header: "Remaining Qty",
-         accessor: row => Number(row.PENDING_QTY).toFixed(3)
+      Header: "Remaining Qty",
+      accessor: row => Number(row.PENDING_QTY).toFixed(3)
     },
     {
       Header: "Billed Qty",
       accessor: "BILLED_QTY"
     },
- 
+
 
   ]
   const columns = useMemo(() => col, [])
@@ -101,7 +101,7 @@ function ItemFeildSTO(props) {
     columns,
     data
   })
-  
+
   const handleInputChange = (event, row, columnId) => {
     let newarr = [...da]
     // console.log(newarr[row.id].ORDER_QUANTITY<event.target.value)
@@ -128,7 +128,7 @@ function ItemFeildSTO(props) {
   // console.log("ddddddddddddaaaaaaaaaaaaaaaaa",da)
   const [isLoading, setIsLoading] = useState(false);
 
- 
+
   const handlesubmit = () => {
     let Details = [];
 
@@ -147,19 +147,19 @@ function ItemFeildSTO(props) {
         BILLED_QTY: items.BILLED_QTY,
       });
     });
-    
-    
+
+
     // console.log("Details to be sent:", Details);
-    
+
     let send = JSON.stringify(Details);
     headerdata.PLANT = itemdata.podata.GateEntrydata[0].PLANT;
     headerdata.VENDOR_ID = itemdata.podata.GateEntrydata[0].VENDOR_ID;
-    
+
     // console.log("Form data and data",itemdata.selectedFile)
     // console.log("headerdata",headerdata)
     // console.log("send",send)
     // console.log("props.EmpId",props.EmpId)
-  // console.log("data that is submittteedddddddd", headerdata)
+    // console.log("data that is submittteedddddddd", headerdata)
 
 
     // Show loading animation
@@ -190,42 +190,42 @@ function ItemFeildSTO(props) {
 
 
   const [plantList, setPlantList] = useState([]); // Raw API data
-const [plantOptions, setPlantOptions] = useState([]); // Transformed data for dropdown
-const [selectedPlant, setSelectedPlant] = useState(null);
-console.log("selectedPlants",selectedPlant) // To store matched plant data
+  const [plantOptions, setPlantOptions] = useState([]); // Transformed data for dropdown
+  const [selectedPlant, setSelectedPlant] = useState(null);
+  console.log("selectedPlants", selectedPlant) // To store matched plant data
 
-useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
-        try {
-            const response = await fetch(`${apiURL}/Employee/allocated_plant?id=${props.EmpId}`);
-            const newData = await response.json();
+      try {
+        const response = await fetch(`${apiURL}Employee/allocated_plant?id=${props.EmpId}`);
+        const newData = await response.json();
 
-            // Update plantList with raw data
-            setPlantList(newData);
+        // Update plantList with raw data
+        setPlantList(newData);
 
-            // Transform data into { label, value } format for dropdown
-            const options = newData.map((plant) => ({
-                label: plant.PLANT_NAME,
-                value: plant.PLANT_ID,
-            }));
-            setPlantOptions(options);
+        // Transform data into { label, value } format for dropdown
+        const options = newData.map((plant) => ({
+          label: plant.PLANT_NAME,
+          value: plant.PLANT_ID,
+        }));
+        setPlantOptions(options);
 
-            // Match the plant ID and update selectedPlant state
-            const matchedPlant = newData.find((plant) => plant.PLANT_ID === itemdata.podata.GateEntrydata[0].PLANT);
-            console.log("matchedPlant",matchedPlant)
-            if (matchedPlant) {
-                setSelectedPlant(matchedPlant);
-            }
-        } catch (error) {
-            console.error("Error fetching plant data:", error);
+        // Match the plant ID and update selectedPlant state
+        const matchedPlant = newData.find((plant) => plant.PLANT_ID === itemdata.podata.GateEntrydata[0].PLANT);
+        console.log("matchedPlant", matchedPlant)
+        if (matchedPlant) {
+          setSelectedPlant(matchedPlant);
         }
+      } catch (error) {
+        console.error("Error fetching plant data:", error);
+      }
     };
 
     fetchData();
-}, [props.EmpId, itemdata.podata.GateEntrydata[0].PLANT]); // Fetch when EmpId or plant ID changes
+  }, [props.EmpId, itemdata.podata.GateEntrydata[0].PLANT]); // Fetch when EmpId or plant ID changes
 
-// To display the matched plant data
-// console.log("Selected Plant:", selectedPlant);
+  // To display the matched plant data
+  // console.log("Selected Plant:", selectedPlant);
 
   // console.log(itemdata.podata.PLANT);
   // console.log('====================================');
@@ -239,7 +239,7 @@ useEffect(() => {
 
       <div className='headinggg'>
         <div className='headingStyle'>
-         <Link to="/Home" style={{ color: 'black' }}><p>Inward Gate Entry - </p></Link>
+          <Link to="/Home" style={{ color: 'black' }}><p>Inward Gate Entry - </p></Link>
           <p className='po'>Against STO Invoice</p>
         </div>
       </div>
@@ -382,41 +382,41 @@ useEffect(() => {
           </div>
 
           <div className="detailStyle">
-  <p>Attachments:</p>
-  <div className="attachmentList">
-    {itemdata.data.ATTACHMENT?.length > 0 ? (
-      itemdata.data.ATTACHMENT.map((file, index) => (
-        <p
-          key={index}
-          className="detailStyle1"
-          style={{
-            cursor: "pointer",
-            borderRadius: "20px",
-            border: "1px solid blue",
-            color: "blue",
-            width: "4em", // Adjust width based on your need
-            overflow: "hidden",
-            fontSize: "12px", // Adjust font size if needed
-            padding: "4px 10px",
-            margin:"5px",
-            textOverflow: "ellipsis", // This will add an ellipsis (...) for long text
-            whiteSpace: "nowrap", // Prevent the text from wrapping to the next line
-            display: "inline-block", // Ensures it stays inline with other items
-          }}
-          onClick={() => {
-            // Create a preview URL and open in a new tab
-            const fileURL = URL.createObjectURL(file);
-            window.open(fileURL, "_blank");
-          }}
-        >
-          {file.name}
-        </p>
-      ))
-    ) : (
-      <p>No attachments available</p>
-    )}
-  </div>
-</div>
+            <p>Attachments:</p>
+            <div className="attachmentList">
+              {itemdata.data.ATTACHMENT?.length > 0 ? (
+                itemdata.data.ATTACHMENT.map((file, index) => (
+                  <p
+                    key={index}
+                    className="detailStyle1"
+                    style={{
+                      cursor: "pointer",
+                      borderRadius: "20px",
+                      border: "1px solid blue",
+                      color: "blue",
+                      width: "4em", // Adjust width based on your need
+                      overflow: "hidden",
+                      fontSize: "12px", // Adjust font size if needed
+                      padding: "4px 10px",
+                      margin: "5px",
+                      textOverflow: "ellipsis", // This will add an ellipsis (...) for long text
+                      whiteSpace: "nowrap", // Prevent the text from wrapping to the next line
+                      display: "inline-block", // Ensures it stays inline with other items
+                    }}
+                    onClick={() => {
+                      // Create a preview URL and open in a new tab
+                      const fileURL = URL.createObjectURL(file);
+                      window.open(fileURL, "_blank");
+                    }}
+                  >
+                    {file.name}
+                  </p>
+                ))
+              ) : (
+                <p>No attachments available</p>
+              )}
+            </div>
+          </div>
 
           <div className='dividerStyle1'>
             <CustomDivider width="130vh" color="#D2D2D2" thickness="0.2vh" />
@@ -445,8 +445,8 @@ useEffect(() => {
           <tbody {...getTableBodyProps()}>
             {
               rows
-              .filter((row) => 
-                data[row.id]?.["DELIVERY_INDICATOR"] !== "X" && Number(data[row.id]?.["PENDING_QTY"]) > 0 )// Exclude rows with DELIVERY_INDICATOR = 'X'
+                .filter((row) =>
+                  data[row.id]?.["DELIVERY_INDICATOR"] !== "X" && Number(data[row.id]?.["PENDING_QTY"]) > 0)// Exclude rows with DELIVERY_INDICATOR = 'X'
                 .map((row) => {
                   prepareRow(row);
                   return (
@@ -466,25 +466,25 @@ useEffect(() => {
                                 handleInputChange({ ...event, target: { ...event.target, value: newValue } }, row, "BILLED_QTY");
                               }}
                             />
-                          ) : cell.column.Header === "Invoice Number" ? 
-                          <input
-                          type="text"
-                          // max={data[row.id]?.["PENDING_QTY"]}
-                          min={0}
-                          style={{ fontSize: "10px", marginLeft: "20px", width: "120px", height: "18px", borderRadius: "5px" }}
-                          // value={data[row.id]?.["BILLED_QTY"] || ""}
-                          // onChange={(event) => {
-                          //   const maxValue = data[row.id]?.["PENDING_QTY"];
-                          //   const newValue = Math.min(Number(event.target.value), maxValue); // Ensure value doesn't exceed max
-                          //   handleInputChange({ ...event, target: { ...event.target, value: newValue } }, row, "BILLED_QTY");
-                          // }}
-                          onInput={(e) => {
-                            // Allow only digits (0-9)
-                            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                          }}
-                        />:(
-                            <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                          ));
+                          ) : cell.column.Header === "Invoice Number" ?
+                            <input
+                              type="text"
+                              // max={data[row.id]?.["PENDING_QTY"]}
+                              min={0}
+                              style={{ fontSize: "10px", marginLeft: "20px", width: "120px", height: "18px", borderRadius: "5px" }}
+                              // value={data[row.id]?.["BILLED_QTY"] || ""}
+                              // onChange={(event) => {
+                              //   const maxValue = data[row.id]?.["PENDING_QTY"];
+                              //   const newValue = Math.min(Number(event.target.value), maxValue); // Ensure value doesn't exceed max
+                              //   handleInputChange({ ...event, target: { ...event.target, value: newValue } }, row, "BILLED_QTY");
+                              // }}
+                              onInput={(e) => {
+                                // Allow only digits (0-9)
+                                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                              }}
+                            /> : (
+                              <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                            ));
                         })
                       }
                     </tr>
@@ -496,41 +496,41 @@ useEffect(() => {
       </div>
 
 
-      <div className='buttonAlign'  style={{
+      <div className='buttonAlign' style={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         marginTop: "20px",
       }}>
         <button className="feildBtn" onClick={() => handlesubmit()} disabled={isLoading}
-        style={{
-          backgroundColor: isLoading ? "#ccc" : "#007BFF",
-          color: isLoading ? "#666" : "#fff",
-          border: "none",
-          padding: "10px 20px",
-          borderRadius: "5px",
-          cursor: isLoading ? "not-allowed" : "pointer",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: "16px",
-          fontWeight: "bold",
-        }}>
+          style={{
+            backgroundColor: isLoading ? "#ccc" : "#007BFF",
+            color: isLoading ? "#666" : "#fff",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "5px",
+            cursor: isLoading ? "not-allowed" : "pointer",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "16px",
+            fontWeight: "bold",
+          }}>
           {isLoading ? (
-          <span
-            style={{
-              border: "2px solid #f3f3f3",
-              borderTop: "2px solid #3498db",
-              borderRadius: "50%",
-              width: "16px",
-              height: "16px",
-              animation: "spin 1s linear infinite",
-              display: "inline-block",
-            }}
-          ></span>
-        ) : (
-          "Submit"
-        )}
+            <span
+              style={{
+                border: "2px solid #f3f3f3",
+                borderTop: "2px solid #3498db",
+                borderRadius: "50%",
+                width: "16px",
+                height: "16px",
+                animation: "spin 1s linear infinite",
+                display: "inline-block",
+              }}
+            ></span>
+          ) : (
+            "Submit"
+          )}
         </button>
         {/* <Toaster/> */}
       </div>

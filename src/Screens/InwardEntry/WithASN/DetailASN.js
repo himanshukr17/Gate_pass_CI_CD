@@ -12,7 +12,7 @@ const apiURL = process.env.REACT_APP_API_URL
 const DetailPO = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const podata = location.state; 
+  const podata = location.state;
 
   console.log("pooooooooooooooodata", podata)
   const [selectedFile, setSelectedFile] = useState([]);
@@ -21,7 +21,7 @@ const DetailPO = (props) => {
     INVOICE: podata[0]?.INVOICE_NUMBER || "",
     DOCDATE: podata[0]?.SHIPPING_DATE ? moment(podata[0].SHIPPING_DATE).format("YYYY-MM-DD") : "",
     VENDORNAME: podata[0]?.VENDOR_NAME || podata[0]?.PLANT_DESCRIPTION || "",
-    DRIVERNAME: podata[0]?.Reporting[0]?.DRIVER_NAME|| "",
+    DRIVERNAME: podata[0]?.Reporting[0]?.DRIVER_NAME || "",
     MOBILE: podata[0]?.Reporting[0]?.DRIVER_MOBILE_NO,
     MOT: podata[0]?.Reporting[0]?.MODE_OF_TRANSPORT,
     VEHCAT: podata[0]?.Reporting[0]?.VEHICLE_CATEGORY,
@@ -29,9 +29,9 @@ const DetailPO = (props) => {
     LR: podata[0]?.Reporting[0]?.LR_NO || "",
     LRDATE: podata[0]?.Reporting[0]?.LR_DATE ? moment(podata[0]?.Reporting[0].LR_DATE).format("YYYY-MM-DD") : "",
     PACKAGES: "",
-   VEHICLEREPDATE: podata[0]?.Reporting[0]?.VEHICLE_REPORTING_TIME
-  ? moment(podata[0].Reporting[0].VEHICLE_REPORTING_TIME).format("YYYY-MM-DDTHH:mm")
-  : "",
+    VEHICLEREPDATE: podata[0]?.Reporting[0]?.VEHICLE_REPORTING_TIME
+      ? moment(podata[0].Reporting[0].VEHICLE_REPORTING_TIME).format("YYYY-MM-DDTHH:mm")
+      : "",
 
     INDATE: moment().format("YYYY-MM-DD"),
     ATTACHMENT: '',
@@ -49,8 +49,8 @@ const DetailPO = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${apiURL}/Employee/mot`);
-        const response1 = await fetch(`${apiURL}/Employee/vehicle_category`);
+        const response = await fetch(`${apiURL}Employee/mot`);
+        const response1 = await fetch(`${apiURL}Employee/vehicle_category`);
         const newData = await response.json();
         setMotList(newData);
         const newData1 = await response1.json();

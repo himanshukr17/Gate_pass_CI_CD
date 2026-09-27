@@ -1,844 +1,513 @@
-import React, { useEffect } from "react";
-import Container from "../../Components/Container";
-import Content from "../../Components/Content";
-import Footer from "../../Components/Footer";
-import "../../Stylesheet/Home.scss";
-import { IconContext } from "react-icons";
-import { AiOutlineRight } from "react-icons/ai";
-import { Link, redirect, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import Header from "../../Components/Header";
-import DashboardHeader from "../../Components/dashboardHeader";
+import "./Home.css";
+
+/* ── tiny clock hook ── */
+function useClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return time;
+}
+
 function Home(props) {
-  // console.log("-----", props.isAdmin)
-
-  const [admin, setAdmin] = useState(props.isAdmin)
-
-  // console.log("admin State",admin)
-  // console.log("props -check", props.state)
-  const location = useLocation();
   const navigate = useNavigate();
-  // const showName = location.state?.user
-  // console.log("showName",showName)
-  const dashboard = true;
-
+  const time = useClock();
+  const [admin, setAdmin] = useState(props.isAdmin);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [openModel, setOpenModel] = useState(false);
   const [outwardModel, setoutwarModel] = useState(false);
   const [reportModel, setReportModel] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [outHovered, setOutHovered] = useState(false);
-  const [reportHovered, setReportHovered] = useState(false);
-  const [vehicleHovered, setVehicleHovered] = useState(false);
-  const [button, setButton] = useState(false);
-  const [inwardHover, setInwardHover] = useState(false)
-  const [outwardHover, setOutwardHover] = useState(false)
-  const [reportHover, setReportHover] = useState(false)
-  const [vehicleHover, setVehicleHover] = useState(false)
+  const [showName] = useState(() => localStorage.getItem("EMP_NAME") || "User");
+  const [activeNav, setActiveNav] = useState("dashboard");
 
+  const formatTime = (d) =>
+    d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 
-  // console.log("openmodeeelllll", openModel)
+  /* ── Navigation items ── */
+  const navItems = [
+    {
+      id: "dashboard",
+      label: "Operations Dashboard",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+      ),
+      action: () => { setActiveNav("dashboard"); },
+    },
+    {
+      id: "register",
+      label: "Gate Pass Register",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
+        </svg>
+      ),
+      action: () => { setActiveNav("register"); navigate("/Reports/Register"); },
+    },
+    {
+      id: "vehicle",
+      label: "Vehicle Reporting",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="1" y="3" width="15" height="13" /><path d="M16 8h4l3 3v4h-7V8z" />
+          <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+      ),
+      action: () => { setActiveNav("vehicle"); navigate("/VehicleReport"); },
+    },
+    {
+      id: "newgate",
+      label: "New Gate Entry",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+      ),
+      action: () => { setActiveNav("newgate"); },
+    },
+    {
+      id: "plant",
+      label: "Plant & User Access",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+      action: () => { setActiveNav("plant"); if (props.isAdmin == 2) navigate("/AddUser"); },
+    },
+  ];
 
-  function openInwardsModel() {
-    setOpenModel(true);
-    setoutwarModel(false);
-    setReportModel(false);
-  }
+  /* ── Stats ── */
+  const stats = [
+    {
+      label: "TODAY'S GATE PASSES",
+      value: "148",
+      color: "#1e293b",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+        </svg>
+      ),
+      sub: [
+        { label: "IN: 86", color: "#22c55e" },
+        { label: "OUT: 62", color: "#f59e0b" },
+        { label: "↑+12% vs y'day", color: "#22c55e" },
+      ],
+    },
+    {
+      label: "ACTIVE IN YARD / LOADING",
+      value: "19",
+      color: "#1e293b",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <rect x="1" y="3" width="15" height="13" /><path d="M16 8h4l3 3v4h-7V8z" />
+          <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+      ),
+      sub: [
+        { label: "⏱ Avg Dwell: 42 mins", color: "#64748b" },
+        { label: "7 Bays Active", color: "#3b82f6" },
+      ],
+    },
+    {
+      label: "PENDING VEHICLE REPORTING",
+      value: "07",
+      color: "#dc2626",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      ),
+      sub: [
+        { label: "● At Outer Barrier", color: "#ef4444" },
+        { label: "Queue: ~11m", color: "#f59e0b", pill: true },
+      ],
+    },
+    {
+      label: "CLEARED / OUTWARD TODAY",
+      value: "122",
+      color: "#16a34a",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      ),
+      sub: [
+        { label: "✓ 100% e-Way Validated", color: "#22c55e" },
+        { label: "Gate 02 Exit", color: "#64748b" },
+      ],
+    },
+  ];
 
-  function openOutwardsModel() {
-    setoutwarModel(true);
-    setOpenModel(false);
-    setReportModel(false);
-  }
+  /* ── Dispatch cards ── */
+  const dispatchCards = [
+    {
+      step: "Step 01",
+      title: "Vehicle Reporting",
+      desc: "Capture incoming chassis number, driver license, and tare weighbridge snapshot.",
+      btnLabel: "+ Check-in Vehicle",
+      btnStyle: "btn-outline",
+      action: () => navigate("/VehicleReport"),
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <rect x="1" y="3" width="15" height="13" /><path d="M16 8h4l3 3v4h-7V8z" />
+          <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+        </svg>
+      ),
+    },
+    {
+      step: "Step 02",
+      title: "Inward Gate Entry",
+      desc: "Record goods receipt, match vendor PO / Invoice, assign unloading bay and safety pass.",
+      btnLabel: "Create Inward Pass →",
+      btnStyle: "btn-dark",
+      action: () => { if (!admin.includes("1")) setOpenModel(!openModel); },
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <polyline points="8 17 12 21 16 17" /><line x1="12" y1="3" x2="12" y2="21" />
+        </svg>
+      ),
+    },
+    {
+      step: "Step 03",
+      title: "Outward Gate Entry",
+      desc: "Inspect outbound cargo seals, check gross weighment, and print dispatch challan.",
+      btnLabel: "Create Outward Pass →",
+      btnStyle: "btn-dark",
+      action: () => { if (!admin.includes("1")) setoutwarModel(!outwardModel); },
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <polyline points="16 7 12 3 8 7" /><line x1="12" y1="21" x2="12" y2="3" />
+        </svg>
+      ),
+    },
+    {
+      step: "Audit",
+      title: "Reports & Logs",
+      desc: "Verify gate override logs, operator actions, gross tare discrepancies and shift records.",
+      btnLabel: "View Security Logs ↺",
+      btnStyle: "btn-outline",
+      action: () => navigate("/Reports/Register"),
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+      ),
+    },
+  ];
 
-  function openReportModel() {
-    setReportModel(true);
-    setOpenModel(false);
-    setoutwarModel(false);
-  }
-  const [showName, setShowName] = useState(() => localStorage.getItem("EMP_NAME") || "");
-  // console.log("showName State",showName)
-  // setName(showName)
+  /* ── Live movements (mock) ── */
+  const movements = [
+    { plate: "MH-04-GP-8401", type: "INWARD", time: "10:38 IST", status: "Weighed", weight: "32.4 MT" },
+    { plate: "GJ-01-AA-9921", type: "OUTWARD", time: "10:35 IST", status: "Gate Cleared", weight: "18.2 MT" },
+    { plate: "RJ-14-CB-1122", type: "INWARD", time: "10:31 IST", status: "At Bay 03", weight: "24.0 MT" },
+    { plate: "MH-12-AF-5503", type: "OUTWARD", time: "10:28 IST", status: "Gate Cleared", weight: "11.7 MT" },
+  ];
 
-  // console.log("localdata",localStorage.getItem("persist:root"));
-
-
+  const bays = [
+    { id: "Bay 01", status: "occupied", vehicle: "MH-04-GP-8401" },
+    { id: "Bay 02", status: "occupied", vehicle: "GJ-01-AA-9921" },
+    { id: "Bay 03", status: "occupied", vehicle: "RJ-14-CB-1122" },
+    { id: "Bay 04", status: "free" },
+    { id: "Bay 05", status: "occupied", vehicle: "MH-09-ZZ-4411" },
+    { id: "Bay 06", status: "free" },
+    { id: "Bay 07", status: "occupied", vehicle: "UP-78-GH-2200" },
+    { id: "Bay 08", status: "free" },
+  ];
 
   return (
-    <>
-      <div style={{ height: "7vh" }}>
-        <DashboardHeader/>
-      </div>
-      <div
-        style={{
-          background: "radial-gradient(circle, #37A7F1, #F8F8ED)",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{ display: "flex", flexDirection: "row", height: "92.2vh" }}
-        >
-          <div
-            style={{ width: "50%", height: "70%" }}
-            onClick={() => {
-              setReportModel(false);
-              setOpenModel(false);
-              setoutwarModel(false);
-              setReportHover(false);
-              setOutwardHover(false);
-              setInwardHover(false);
-              setVehicleHover(false);
-            }}
-          >
-            <div style={{
-              marginTop: "2%",
-              marginLeft: "10%",
-              fontSize: "100%"
-            }}>
-              Welcome, <span style={{ color: "#cf7414", fontWeight: "700", fontSize: "120%" }}>{showName}</span></div>
-            <img
-              src="../Images/HomePage_text.png"
-              alt="Text"
-              style={{
-                height: "auto",
-                width: "60%",
-                marginTop: "3%",
-                marginLeft: "10%",
-              }}
-            />
+    <div className="hm-root">
+      {/* ════════════════════════════════
+          TOP NAV BAR
+      ════════════════════════════════ */}
+      <header className="hm-topbar">
+        {/* Left */}
+        <div className="hm-topbar-left">
+          <button className="hm-sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <div className="hm-brand">
+            <img src="/Images/Frame_logo.png" alt="Logo" className="hm-brand-logo" />
+            <div>
+              <div className="hm-brand-name">GateAccess Pro</div>
+              <div className="hm-brand-sub">YARD LOGISTICS OS</div>
+            </div>
+          </div>
+          <div className="hm-plant-selector">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/>
+            </svg>
+            1100 – Ram Ratna Infrastructure – Mum HO
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
 
-            {props.isAdmin == 2 && (
-              <div style={{ marginLeft: "10%", marginTop: "5%" }}>
-                <button
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "10px",
-                    background: button ? "#1D8FEF" : "#2FA5FF",
-                    borderRadius: "30px",
-                    padding: "8px",
-                    color: "#FFFFFF",
-                    paddingLeft: "7px",
-                    fontFamily: "Roboto, sans-serif",
-                    fontWeight: "400",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "15px",
-                    height: "5vh",
-                    width: "auto",
-                  }}
-                  onMouseEnter={() => setButton(true)}
-                  onMouseLeave={() => setButton(false)}
-                  onClick={() => navigate("/AddUser")}
-                >
-                  {" "}
-                  Create New User{" "}
-                  <img
-                    src="../Images/Plus_icon.png"
-                    alt="plus Icon"
-                    style={{ height: "auto", width: "10%" }}
-                  ></img>
+        {/* Right */}
+        <div className="hm-topbar-right">
+          <div className="hm-topbar-time">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {formatTime(time)} IST
+          </div>
+          <div className="hm-shift-badge">Shift A (06:00 – 14:00)</div>
+          <button className="hm-quick-pass-btn" onClick={() => setOpenModel(true)}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Quick Gate Pass
+          </button>
+          <div className="hm-notif-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span className="hm-notif-dot"></span>
+          </div>
+          <div className="hm-user-chip">
+            <div className="hm-avatar">{showName.charAt(0).toUpperCase()}</div>
+            <div>
+              <div className="hm-user-name">{showName}</div>
+              <div className="hm-user-role">Admin Dispatcher</div>
+            </div>
+            <button className="hm-logout-btn" title="Logout" onClick={() => props.dispatch && props.dispatch({ type: "PROFILE", payload: { isAdmin: 1, isAuth: false, details: [] } })}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="hm-body">
+        {/* ════════════════════════════════
+            SIDEBAR
+        ════════════════════════════════ */}
+        <aside className={`hm-sidebar${sidebarOpen ? "" : " hm-sidebar-collapsed"}`}>
+          <div className="hm-sidebar-section-label">OPERATIONS COMMAND</div>
+          <nav className="hm-sidebar-nav">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                className={`hm-nav-item${activeNav === item.id ? " active" : ""}`}
+                onClick={item.action}
+              >
+                <span className="hm-nav-icon">{item.icon}</span>
+                {sidebarOpen && <span className="hm-nav-label">{item.label}</span>}
+              </button>
+            ))}
+          </nav>
+
+          <div className="hm-sidebar-footer">
+            <div className="hm-terminal-info">
+              <div className="hm-terminal-dot"></div>
+              {sidebarOpen && (
+                <div>
+                  <div className="hm-terminal-label">Active Terminal</div>
+                  <div className="hm-terminal-name">GATEWAY #02</div>
+                  <span className="hm-terminal-badge">INBOUND</span>
+                </div>
+              )}
+            </div>
+            {sidebarOpen && <div className="hm-version">v2.8.4-R3</div>}
+            {sidebarOpen && (
+              <button className="hm-help-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Help Desk
+              </button>
+            )}
+          </div>
+        </aside>
+
+        {/* ════════════════════════════════
+            MAIN CONTENT
+        ════════════════════════════════ */}
+        <main className="hm-main" onClick={() => { setOpenModel(false); setoutwarModel(false); setReportModel(false); }}>
+
+          {/* Welcome Banner */}
+          <div className="hm-banner">
+            <div className="hm-banner-top-row">
+              <div className="hm-live-badge">
+                <span className="hm-live-dot"></span>
+                LIVE CONTROL ROOM
+              </div>
+              <span className="hm-banner-breadcrumb">Plant 1102 • Khopoli Heavy Yard</span>
+              <span className="hm-banner-sep">›</span>
+              <span className="hm-banner-bays">Bays 01-08 Operational</span>
+            </div>
+            <div className="hm-banner-body">
+              <div className="hm-banner-left">
+                <h1 className="hm-banner-title">
+                  Welcome back, <span className="hm-banner-name">{showName}</span>
+                  <span className="hm-banner-role"> (Plant Admin)</span>
+                </h1>
+                <p className="hm-banner-desc">
+                  Real-time material flow dispatch, gate security validation, and yard weighbridge monitoring
+                  system. All automated optical ANPR cameras reporting synchronized telemetry.
+                </p>
+              </div>
+              <div className="hm-banner-actions">
+                {props.isAdmin == 2 && (
+                  <button className="hm-action-btn" onClick={(e) => { e.stopPropagation(); navigate("/AddUser"); }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    Add New User
+                  </button>
+                )}
+                <button className="hm-action-btn" onClick={(e) => { e.stopPropagation(); navigate("/Reports/Register"); }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Daily Gate Sheet
+                </button>
+                <button className="hm-action-btn hm-lockdown-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  Gate Lockdown
                 </button>
               </div>
-            )}
-          </div>
-          <div
-            style={{ width: "50%", height: "70%" }}
-            onClick={() => {
-              setReportModel(false);
-              setOpenModel(false);
-              setoutwarModel(false);
-              setReportHover(false);
-              setOutwardHover(false);
-              setVehicleHover(false);
-              setInwardHover(false);
-            }}
-          >
-            <img
-              src="../Images/home.png"
-              alt="Logo"
-              style={{ height: "auto", width: "80%", marginLeft: "10%" }}
-            />
-          </div>
-        </div>
-        <div
-          style={{
-            background: "#C1CDE27D",
-            width: "100vw",
-            height: "32vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "absolute",
-            top: "60%",
-            right: "2%",
-            gap: "2%",
-            backdropFilter: "blur(5px)",
-            borderRadius: "15px",
-            borderTopLeftRadius: "0",
-            borderBottomLeftRadius: "0",
-          }}
-        >
-          <div
-            style={{
-              background: vehicleHovered ? "#A3C4D6" : "#0000004D",
-              width: "22%",
-              height: "22vh",
-              display: "flex",
-              borderRadius: "15px",
-            }}
-          // onMouseEnter={() => setVehicleHovered(true)}
-          // onMouseLeave={() => setVehicleHovered(false)}
-          >
-            <div style={{ width: "20%", margin: "5%" }}>
-              <img
-                src="../Images/Vehicle_Reporting_Card.png"
-                alt="Logo"
-                style={{ height: "auto", width: "100%" }}
-              />
             </div>
-            <div
-              style={{
-                width: "80%",
-                display: "flex",
-                flexDirection: "column",
-                gap: "2%",
-                padding: "3%",
-                paddingTop: "4%",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "16px",
-                  color: "#FFFFFF",
-                  fontWeight: "700",
-                  fontFamily: "Roboto, sans-serif",
-                  height: "20%",
-                }}
-              >
-                Vehicle Reporting
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "#E9E9E9",
-                  fontWeight: "400",
-                  fontFamily: "Roboto, sans-serif",
-                  height: "30%",
-                }}
-              >
-                Updates the vehicle presence.
-              </div>
-              <div
-                style={{
-                  height: "50%",
-                  paddingTop: "5%",
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <div
-                  style={{
-                    // backgroundColor: "#b9bbbd",
-                    // marginLeft: "65%",
-                    // border: "none",
-                    cursor: "pointer",
-                    // borderRadius: "32px",
-                    // padding: "2px",
-                    // marginTop: "5%",
-                    // transition: "background 0.3s",
-                    // color: "white",
-                    // width: "50px",
-                    // height: "30px",
-                    // fontSize: "20px",
-                    // alignItems: "center",
-                    // display: "flex",
-                    // justifyContent: "center",
-                  }}
-                  onClick={() => navigate("/VehicleReport")}
-                  onMouseEnter={() => setVehicleHover(true)}
-                  onMouseLeave={() => setVehicleHover(false)}
-                >
-                  <img
-                    style={{ width: "90%", height: "auto" }}
-                    src={
-                      vehicleHover
-                        ? "../Images/Arrow_active.svg"
-                        : "../Images/Arrow_inactive.svg"
-                    }
-                    alt="Button"
-                  />
+          </div>
 
+          {/* ── Stats Row ── */}
+          <div className="hm-stats-grid">
+            {stats.map((s, i) => (
+              <div className="hm-stat-card" key={i}>
+                <div className="hm-stat-header">
+                  <span className="hm-stat-label">{s.label}</span>
+                  <span className="hm-stat-icon">{s.icon}</span>
+                </div>
+                <div className="hm-stat-value" style={{ color: s.color }}>{s.value}</div>
+                <div className="hm-stat-sub-row">
+                  {s.sub.map((ss, j) => (
+                    <span
+                      key={j}
+                      className={`hm-stat-sub-item${ss.pill ? " hm-stat-pill" : ""}`}
+                      style={{ color: ss.color }}
+                    >
+                      {ss.label}
+                    </span>
+                  ))}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-          {!admin.includes("1") && (
-            <div
-              style={{
-                background: openModel ? "#C4DAEB" : "#0000004D",
-                width: "22%",
-                height: "22vh",
-                display: "flex",
-                borderRadius: "15px",
-              }}
-            >
-              <div style={{ width: "20%", margin: "5%" }}>
-                <img
-                  src="../Images/Inward_Card.png"
-                  alt="Logo"
-                  style={{ height: "auto", width: "100%", cursor: "pointer" }}
-                  onClick={() => { setInwardHover(false); setOpenModel(false) }}
-                />
+
+          {/* ── Primary Operations Dispatch ── */}
+          <div className="hm-section">
+            <div className="hm-section-header">
+              <div className="hm-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Primary Operations Dispatch
               </div>
-              {openModel ? (
-                <div
-                  style={{
-                    width: "80%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "7%",
-                  }}
-                >
-                  <div style={{ marginTop: "5%" }}>
-                    <button
-                      style={{
-                        background: "#E78D00",
-                        paddingTop: "4%",
-                        paddingBottom: "4%",
-                        width: "90%",
-                        height: "auto",
-                        border: "none",
-                        borderRadius: "15px",
-                        color: "#FFFFFF",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        fontFamily: "Roboto, sans-serif",
-                        cursor: "pointer",
-                        transition: "background 0.3s",
-                      }}
-                      onClick={() => navigate("/Inward/WithPO")}
-                      onMouseEnter={(e) =>
-                        (e.target.style.background = "#d77c00")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.target.style.background = "#E78D00")
-                      }
-                    >
-                      With Reference to PO/ASN
-                    </button>
+              <span className="hm-fast-lane">FAST LANE PROCESSING MODE</span>
+            </div>
+
+            <div className="hm-dispatch-grid">
+              {dispatchCards.map((card, i) => (
+                <div className="hm-dispatch-card" key={i} onClick={(e) => e.stopPropagation()}>
+                  <div className="hm-dispatch-card-top">
+                    <span className="hm-dispatch-icon">{card.icon}</span>
+                    <span className="hm-dispatch-step">{card.step}</span>
                   </div>
-                  <div>
-                    <button
-                      style={{
-                        background: "#E78D00",
-                        paddingTop: "4%",
-                        paddingBottom: "4%",
-                        width: "90%",
-                        height: "auto",
-                        border: "none",
-                        borderRadius: "15px",
-                        color: "#FFFFFF",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        fontFamily: "Roboto, sans-serif",
-                        cursor: "pointer",
-                        transition: "background 0.3s",
-                      }}
-                      onClick={() => navigate("/Inward/WithoutPO")}
-                      onMouseEnter={(e) =>
-                        (e.target.style.background = "#d77c00")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.target.style.background = "#E78D00")
-                      }
-                    >
-                      Without PO/NRGP/RGP
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      style={{
-                        background: "#E78D00",
-                        paddingTop: "4%",
-                        paddingBottom: "4%",
-                        width: "90%",
-                        height: "auto",
-                        border: "none",
-                        borderRadius: "15px",
-                        color: "#FFFFFF",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        fontFamily: "Roboto, sans-serif",
-                        cursor: "pointer",
-                        transition: "background 0.3s",
-                      }}
-                      onClick={() => navigate("/Inward/STO")}
-                      onMouseEnter={(e) =>
-                        (e.target.style.background = "#d77c00")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.target.style.background = "#E78D00")
-                      }
-                    >
-                      Against STO Invoice
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    width: "80%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "2%",
-                    padding: "3%",
-                    paddingTop: "4%",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: "100%",
-                      color: "#FFFFFF",
-                      fontWeight: "700",
-                      fontFamily: "Roboto, sans-serif",
-                      height: "20%",
-                    }}
-                  >
-                    Inward Gate Entry
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "80%",
-                      color: "#E9E9E9",
-                      fontWeight: "400",
-                      fontFamily: "Roboto, sans-serif",
-                      height: "30%",
-                    }}
-                  >
-                    Track the entry of goods into the premises.
-                  </div>
-                  <div style={{ height: "50%", paddingTop: "5%" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        textAlign: "right",
-                        // justifyContent:"flex-end",
-                        // width: "95%",
-                        // fontSize: "11.5px",
-                        // borderRadius: "15px",
-                        // padding: "7.5px",
-                        // backgroundColor: "#b9bbbd",
-                        // color: "#f7ffff",
-                        // border: "none",
-                        // gap: "8%",
-                        // alignItems: "center",
-                        cursor: "pointer",
-                        marginLeft: "-5%",
-                        // fontFamily: "Roboto, sans-serif",
-                        // transition: "background 0.3s",
-                      }}
-                      // {isAdmin}
-                      onClick={() => { { openInwardsModel(); setOutwardHover(false); setReportHover(false); setVehicleHover(false); } }}
-                      onMouseEnter={() => setInwardHover(true)}
-                      onMouseLeave={() => setInwardHover(false)}
-                    >
-                      <img
-                        style={{ width: "95%", height: "auto" }}
-                        src={
-                          inwardHover
-                            ? "../Images/Inward_active.svg"
-                            : "../Images/Inward_Inactive.svg"
-                        }
-                        alt="Button"
-                      />
+                  <div className="hm-dispatch-title">{card.title}</div>
+                  <div className="hm-dispatch-desc">{card.desc}</div>
+
+                  {/* Inward sub-options */}
+                  {card.title === "Inward Gate Entry" && openModel && (
+                    <div className="hm-sub-options" onClick={(e) => e.stopPropagation()}>
+                      <button className="hm-sub-btn hm-sub-orange" onClick={() => navigate("/Inward/WithPO")}>With Reference to PO/ASN</button>
+                      <button className="hm-sub-btn hm-sub-orange" onClick={() => navigate("/Inward/WithoutPO")}>Without PO/NRGP/RGP</button>
+                      <button className="hm-sub-btn hm-sub-orange" onClick={() => navigate("/Inward/STO")}>Against STO Invoice</button>
                     </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                  )}
 
-
-          {!admin.includes("1") && (
-            <div
-              style={{
-                background: outHovered
-                  ? "#A3C4D6"
-                  : outwardModel
-                    ? "#C4DAEB"
-                    : "#0000004D",
-                width: "22%",
-                height: "22vh",
-                display: "flex",
-                borderRadius: "15px",
-              }}
-            // onMouseEnter={() => setOutHovered(true)}
-            // onMouseLeave={() => setOutHovered(false)}
-            >
-              <div style={{ width: "20%", margin: "5%" }}>
-                <img
-                  src="../Images/Outward_Card.png"
-                  alt="Logo"
-                  style={{ height: "auto", width: "100%", cursor: "pointer" }}
-                  onClick={() => { setoutwarModel(false); setOutwardHover(false) }}
-                />
-              </div>
-
-              {outwardModel ? (
-                <div
-                  style={{
-                    width: "80%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "7%",
-                  }}
-                >
-                  <div style={{ marginTop: "5%" }}>
-                    <button
-                      style={{
-                        background: "#27B543",
-                        paddingTop: "4%",
-                        paddingBottom: "4%",
-                        width: "90%",
-                        height: "auto",
-                        border: "none",
-                        borderRadius: "15px",
-                        color: "#FFFFFF",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        fontFamily: "Roboto, sans-serif",
-                        cursor: "pointer",
-                        transition: "background 0.3s",
-                      }}
-                      onClick={() => navigate("/Outward/NRGP")}
-                      onMouseEnter={(e) =>
-                        (e.target.style.background = "#1f9537")
-                      } // Darker green on hover
-                      onMouseLeave={(e) =>
-                        (e.target.style.background = "#27B543")
-                      } // Original green
-                    >
-                      Invoice Challan
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      style={{
-                        background: "#27B543",
-                        paddingTop: "4%",
-                        paddingBottom: "4%",
-                        width: "90%",
-                        height: "auto",
-                        border: "none",
-                        borderRadius: "15px",
-                        color: "#FFFFFF",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        fontFamily: "Roboto, sans-serif",
-                        cursor: "pointer",
-                        transition: "background 0.3s",
-                      }}
-                      onClick={() => navigate("/Outward/STO")}
-                      onMouseEnter={(e) =>
-                        (e.target.style.background = "#1f9537")
-                      } // Darker green on hover
-                      onMouseLeave={(e) =>
-                        (e.target.style.background = "#27B543")
-                      } // Original green
-                    >
-                      With Return PO
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      style={{
-                        background: "#27B543",
-                        paddingTop: "4%",
-                        paddingBottom: "4%",
-                        width: "90%",
-                        height: "auto",
-                        border: "none",
-                        borderRadius: "15px",
-                        color: "#FFFFFF",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        fontFamily: "Roboto, sans-serif",
-                        cursor: "pointer",
-                        transition: "background 0.3s",
-                      }}
-                      onClick={() => navigate("/Outward/RGP-RFA-Issue")}
-                      onMouseEnter={(e) =>
-                        (e.target.style.background = "#1f9537")
-                      } // Darker green on hover
-                      onMouseLeave={(e) =>
-                        (e.target.style.background = "#27B543")
-                      } // Original green
-                    >
-                      RGP/NRGP
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    width: "80%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "2%",
-                    padding: "3%",
-                    paddingTop: "4%",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: "100%",
-                      color: "#FFFFFF",
-                      fontWeight: "700",
-                      fontFamily: "Roboto, sans-serif",
-                      height: "20%",
-                    }}
-                  >
-                    Outward Gate Entry
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "80%",
-                      color: "#E9E9E9",
-                      fontWeight: "400",
-                      fontFamily: "Roboto, sans-serif",
-                      height: "30%",
-                    }}
-                  >
-                    Track the exit of goods from the premises.
-                  </div>
-                  <div style={{ height: "50%", paddingTop: "5%" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        textAlign: "right",
-                        // justifyContent:"flex-end",
-                        // width: "95%",
-                        // fontSize: "11.5px",
-                        // borderRadius: "15px",
-                        // padding: "7.5px",
-                        // backgroundColor: "#b9bbbd",
-                        // color: "#f7ffff",
-                        // border: "none",
-                        // gap: "8%",
-                        // alignItems: "center",
-                        cursor: "pointer",
-                        marginLeft: "-5%",
-                        // fontFamily: "Roboto, sans-serif",
-                        // transition: "background 0.3s",
-                      }}
-                      // onClick={openOutwardsModel}
-                      onClick={() => { { openOutwardsModel(); setInwardHover(false); setReportHover(false); setVehicleHover(false); } }}
-                      onMouseEnter={() => setOutwardHover(true)}
-                      onMouseLeave={() => setOutwardHover(false)}
-                    >
-                      <img
-                        style={{ width: "95%", height: "auto" }}
-                        src={
-                          outwardHover
-                            ? "../Images/Outward_active.svg"
-                            : "../Images/Outward_Inactive.svg"
-                        }
-                        alt="Button"
-                      />
+                  {/* Outward sub-options */}
+                  {card.title === "Outward Gate Entry" && outwardModel && (
+                    <div className="hm-sub-options" onClick={(e) => e.stopPropagation()}>
+                      <button className="hm-sub-btn hm-sub-green" onClick={() => navigate("/Outward/NRGP")}>Invoice Challan</button>
+                      <button className="hm-sub-btn hm-sub-green" onClick={() => navigate("/Outward/STO")}>With Return PO</button>
+                      <button className="hm-sub-btn hm-sub-green" onClick={() => navigate("/Outward/RGP-RFA-Issue")}>RGP/NRGP</button>
                     </div>
-                  </div>
+                  )}
+
+                  {!(card.title === "Inward Gate Entry" && openModel) &&
+                   !(card.title === "Outward Gate Entry" && outwardModel) && (
+                    <button
+                      className={`hm-dispatch-btn ${card.btnStyle}`}
+                      onClick={(e) => { e.stopPropagation(); card.action(); }}
+                    >
+                      {card.btnLabel}
+                    </button>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          )}
-
-
-          <div
-            style={{
-              background: reportHovered
-                ? "#A3C4D6"
-                : reportModel
-                  ? "#C4DAEB"
-                  : "#0000004D",
-              width: "22%",
-              height: "22vh",
-              display: "flex",
-              borderRadius: "15px",
-            }}
-          >
-            <div style={{ width: "20%", margin: "5%" }}>
-              <img
-                src="../Images/Report_icon.png"
-                alt="Logo"
-                style={{ height: "auto", width: "100%", cursor: "pointer" }}
-                onClick={() => { setReportHover(false); setReportModel(false) }}
-              />
-            </div>
-
-            {reportModel ? (
-              <div
-                style={{
-                  width: "80%",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "7%",
-                }}
-              >
-                <div style={{ marginTop: "16%" }}>
-                  <button
-                    style={{
-                      background: "#2096ED",
-                      paddingTop: "4%",
-                      paddingBottom: "4%",
-                      width: "90%",
-                      height: "auto",
-                      border: "none",
-                      borderRadius: "15px",
-                      color: "#FFFFFF",
-                      fontSize: "12px",
-                      fontWeight: "400",
-                      fontFamily: "Roboto, sans-serif",
-                      cursor: "pointer",
-                      transition: "background 0.3s",
-                    }}
-                    onClick={() => navigate("/Reports/Register")}
-                    onMouseEnter={(e) =>
-                      (e.target.style.background = "#1b7cc3")
-                    } // Darker blue on hover
-                    onMouseLeave={(e) =>
-                      (e.target.style.background = "#2096ED")
-                    } // Original blue
-                  >
-                    Gate Pass Register
-                  </button>
-                </div>
-                <div>
-                  <button
-                    style={{
-                      background: "#2096ED",
-                      paddingTop: "4%",
-                      paddingBottom: "4%",
-                      width: "90%",
-                      height: "auto",
-                      border: "none",
-                      borderRadius: "15px",
-                      color: "#FFFFFF",
-                      fontSize: "12px",
-                      fontWeight: "400",
-                      fontFamily: "Roboto, sans-serif",
-                      cursor: "pointer",
-                      // transition: "background 0.3s",
-                    }}
-                    onClick={() => navigate("/Reports/ChangeLog")}
-                    onMouseEnter={(e) =>
-                      (e.target.style.background = "#1b7cc3")
-                    } // Darker blue on hover
-                    onMouseLeave={(e) =>
-                      (e.target.style.background = "#2096ED")
-                    } // Original blue
-                  >
-                    Change Log
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  width: "80%",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "2%",
-                  padding: "3%",
-                  paddingTop: "4%",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "16px",
-                    color: "#FFFFFF",
-                    fontWeight: "700",
-                    fontFamily: "Roboto, sans-serif",
-                    height: "20%",
-                  }}
-                >
-                  Reports Section
-                </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#E9E9E9",
-                    fontWeight: "400",
-                    fontFamily: "Roboto, sans-serif",
-                    height: "30%",
-                  }}
-                >
-                  Information about Inward/Outward material on gate and change
-                  logs.
-                </div>
-                <div
-                  style={{
-                    alignItems: "right",
-                    height: "50%",
-                    paddingTop: "5%",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      textAlign: "right",
-                      justifyContent: "flex-end",
-                      // width: "95%",
-                      // fontSize: "11.5px",
-                      // borderRadius: "15px",
-                      // padding: "7.5px",
-                      // backgroundColor: "#b9bbbd",
-                      // color: "#f7ffff",
-                      // border: "none",
-                      // gap: "8%",
-                      // alignItems: "center",
-                      // cursor: "pointer",
-                      marginRight: "5%"
-                      // marginLeft: "-5%",
-                      // fontFamily: "Roboto, sans-serif",
-                      // transition: "background 0.3s",
-                    }}
-                  // onClick={openReportModel}
-
-                  >
-                    <img
-                      style={{ width: "22%", height: "auto", cursor: "pointer" }}
-                      src={
-                        reportHover
-                          ? "../Images/Arrow_active.svg"
-                          : "../Images/Arrow_Inactive.svg"
-                      }
-                      alt="Button"
-                      onClick={() => { { openReportModel(); setOutwardHover(false); setInwardHover(false); setVehicleHover(false); } }}
-                      onMouseEnter={() => setReportHover(true)}
-                      onMouseLeave={() => setReportHover(false)}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
+          {/* ── Bottom: Live movements + Dock Staging ── */}
+          <div className="hm-bottom-grid">
+            {/* Live Gate Movements */}
+            <div className="hm-movements-card">
+              <div className="hm-section-header">
+                <div className="hm-section-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+                    <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                  </svg>
+                  Live Gate Movements
+                </div>
+                <div className="hm-movement-tabs">
+                  <span className="hm-tab active">All Movements</span>
+                  <span className="hm-tab">Inward Only</span>
+                  <span className="hm-tab">Outward Only</span>
+                </div>
+              </div>
+              <div className="hm-movements-table">
+                <div className="hm-movements-head">
+                  <span>Vehicle</span><span>Type</span><span>Time</span><span>Status</span><span>Weight</span>
+                </div>
+                {movements.map((m, i) => (
+                  <div className="hm-movement-row" key={i}>
+                    <span className="hm-mov-plate">{m.plate}</span>
+                    <span className={`hm-mov-type ${m.type === "INWARD" ? "inward" : "outward"}`}>{m.type}</span>
+                    <span className="hm-mov-time">{m.time}</span>
+                    <span className="hm-mov-status">{m.status}</span>
+                    <span className="hm-mov-weight">{m.weight}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        </div>
+            {/* Dock Staging */}
+            <div className="hm-dock-card">
+              <div className="hm-section-header">
+                <div className="hm-section-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/>
+                  </svg>
+                  Dock Staging Status
+                </div>
+                <span className="hm-dock-online">8 Bays Online</span>
+              </div>
+              <div className="hm-bays-grid">
+                {bays.map((bay) => (
+                  <div key={bay.id} className={`hm-bay-cell ${bay.status}`}>
+                    <div className="hm-bay-id">{bay.id}</div>
+                    {bay.vehicle && <div className="hm-bay-vehicle">{bay.vehicle}</div>}
+                    {!bay.vehicle && <div className="hm-bay-free">FREE</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
-      {/* <Footer>
-
-                  </Footer> */}
-    </>
+    </div>
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    isAdmin: state.loginreducer.isAdmin,
-  };
-};
+const mapStateToProps = (state) => ({
+  isAdmin: state.loginreducer.isAdmin,
+});
 
 export default connect(mapStateToProps, {})(Home);

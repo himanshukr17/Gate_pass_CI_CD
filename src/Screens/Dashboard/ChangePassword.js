@@ -25,10 +25,10 @@ function ChangePassword(props) {
       return;
     }
 
-    setError(""); 
+    setError("");
 
     try {
-      const response = await fetch(`${apiURL}/Employee/changePassword`, {
+      const response = await fetch(`${apiURL}Employee/changePassword`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,7 +44,7 @@ function ChangePassword(props) {
 
       if (response.status == 201) {
         toast.success("Password updated successfully");
-        handleCancel(); 
+        handleCancel();
       } else {
         setError(text || "Failed to update password");
       }
@@ -109,7 +109,7 @@ function ChangePassword(props) {
               />
               {currentPassword && (
                 <span onClick={() => setShowCurrent(!showCurrent)} style={eyeStyle}>
-                 {showCurrent ? "🐵" : "🙈"}
+                  {showCurrent ? "🐵" : "🙈"}
                 </span>
               )}
             </div>
@@ -155,7 +155,7 @@ function ChangePassword(props) {
               />
               {confirmPassword && (
                 <span onClick={() => setShowConfirm(!showConfirm)} style={eyeStyle}>
-                 {showConfirm ? "🐵" : "🙈"}
+                  {showConfirm ? "🐵" : "🙈"}
                 </span>
               )}
             </div>

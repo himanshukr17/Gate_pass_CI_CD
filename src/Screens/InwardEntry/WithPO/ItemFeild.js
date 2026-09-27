@@ -31,11 +31,11 @@ function ItemFeild(props) {
       setSearchResults([]);
       return;
     }
-  
+
     const results = da.filter((item) =>
       item.MATERIAL_NO?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
-  
+
     setSearchResults(results);
   }, [searchTerm, da]);
 
@@ -93,7 +93,7 @@ function ItemFeild(props) {
   const filteredData = showFiltered
     ? data.filter((item) => item.PENDING_QTY - item.BILLED_QTY !== 0)
     : data;
-  
+
   const tableInstance = useTable({
     columns,
     data: useMemo(() => filteredData, [filteredData]),
@@ -189,12 +189,12 @@ function ItemFeild(props) {
   const [plantOptions, setPlantOptions] = useState([]);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  console.log("selected Plants",selectedPlant)
+  console.log("selected Plants", selectedPlant)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${apiURL}/Employee/allocated_plant?id=${props.EmpId}`);
+        const response = await fetch(`${apiURL}Employee/allocated_plant?id=${props.EmpId}`);
         const newData = await response.json();
 
         setPlantList(newData);
@@ -225,7 +225,7 @@ function ItemFeild(props) {
 
       <div className='headinggg'>
         <div className='headingStyle'>
-         <Link to="/Home" style={{ color: 'black' }}><p>Inward Gate Entry - </p></Link>
+          <Link to="/Home" style={{ color: 'black' }}><p>Inward Gate Entry - </p></Link>
           <p className='po'>With PO</p>
         </div>
       </div>
@@ -398,7 +398,7 @@ function ItemFeild(props) {
           checked={showFiltered}
           onChange={() => setShowFiltered(!showFiltered)}
         />
-        <label htmlFor="filterCheckbox" style={{  marginLeft: "10px" }}>
+        <label htmlFor="filterCheckbox" style={{ marginLeft: "10px" }}>
           Remaining Billed Quantity Left
         </label>
         <input

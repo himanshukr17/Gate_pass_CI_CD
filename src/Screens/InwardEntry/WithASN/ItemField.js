@@ -29,9 +29,9 @@ function ItemFeild(props) {
       itemdata.podata.forEach((items) => {
         if (Array.isArray(items.Details)) {
           items.Details.forEach((item) => {
-            newData.push({ 
-              ...item, 
-              BILLED_QTY: item.DELIVERED_QUANTITY || 0 
+            newData.push({
+              ...item,
+              BILLED_QTY: item.DELIVERED_QUANTITY || 0
             });
           });
         } else {
@@ -164,7 +164,7 @@ function ItemFeild(props) {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${apiURL}/Employee/allocated_plant?id=${props.EmpId}`
+          `${apiURL}Employee/allocated_plant?id=${props.EmpId}`
         );
         const newData = await response.json();
 
@@ -411,7 +411,7 @@ function ItemFeild(props) {
             </thead>
             <tbody {...getTableBodyProps()}>
               {rows.map((row) => {
-                console.log("row data",row)
+                console.log("row data", row)
                 prepareRow(row);
                 return (
                   <tr {...row.getRowProps()} key={`${row.original.PO_NO}-${row.original.ITEM_CATEGORY}`}>
