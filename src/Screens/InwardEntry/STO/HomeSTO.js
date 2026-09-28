@@ -1,210 +1,158 @@
-import React, { useState } from "react";
-import { AiOutlineCloseCircle } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
-import { IconContext } from "react-icons";
-import { StoData } from "../../../redux/action/StoData";
-import { connect } from "react-redux";
-import { toast } from "react-hot-toast";
- 
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { StoData } from '../../../redux/action/StoData';
+import { connect } from 'react-redux';
+import { toast } from 'react-hot-toast';
+import '../../../Stylesheet/EntryPage.css';
+
 const HomeSTO = (props) => {
   const navigate = useNavigate();
-  const [data, setData] = useState({ PO: "" });
+  const [showName] = useState(() => localStorage.getItem('EMP_NAME') || 'User');
+  const [data, setData] = useState({ PO: '' });
   const [error, setError] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [gateEntryDetails, setGateEntryDetails] = useState([]);
   const [gateEntrydata, setGateEntrydata] = useState([]);
-  const [selectedEntry, setSelectedEntry] = useState(null); // Track selected row
-  console.log("Selected Entries", selectedEntry);
- 
-console.log("gateEntryDetails",gateEntryDetails)
-  const setValue = (val) => {
-    setData({ ...data, ...val });
-  };
- 
+  const [selectedEntry, setSelectedEntry] = useState(null);
+
+  const setValue = (val) => setData({ ...data, ...val });
+
   const handleSubmit = () => {
     let hasErr = false;
     let err = { PO: null };
-
-    if (!data.PO.trim()) {
-        hasErr = true;
-        err.PO = "This field is mandatory";
-        toast.error("Please enter Bill number");
-    }
-
+    if (!data.PO.trim()) { hasErr = true; err.PO = 'This field is mandatory'; toast.error('Please enter Bill number'); }
     setError(err);
-
     if (!hasErr) {
-        props
-            .StoData({ po: data.PO })
-            .then((response) => {
-                if (response.status === 200) {
-                  console.log("response",response)
-                    const gateEntries = response.data[0]?.GateEntryDetails || [];
-
-                    if (gateEntries.length === 0) {
-                        toast.error("NO GATE ENTRY FOUND");
-                        return; // Stop further execution
-                    }
-
-                    setGateEntryDetails(gateEntries);
-                    setGateEntrydata(response.data);
-                    setModalOpen(true); // Open modal
-                }
-            })
-            .catch(() => {
-                toast.error("Please enter a valid Bill number");
-            });
+      props.StoData({ po: data.PO })
+        .then((response) => {
+          if (response.status === 200) {
+            const gateEntries = response.data[0]?.GateEntryDetails || [];
+            if (gateEntries.length === 0) { toast.error('NO GATE ENTRY FOUND'); return; }
+            setGateEntryDetails(gateEntries);
+            setGateEntrydata(response.data);
+            setModalOpen(true);
+          }
+        })
+        .catch(() => toast.error('Please enter a valid Bill number'));
     }
-};
+  };
 
- 
   const handleConfirm = () => {
     setModalOpen(false);
-    navigate("/Inward/STO/DetailSTO", { state: { SelectedGateEntry: selectedEntry, GateEntrydata: gateEntrydata } });
+    navigate('/Inward/STO/DetailSTO', { state: { SelectedGateEntry: selectedEntry, GateEntrydata: gateEntrydata } });
   };
- 
+
   return (
-    <>
-      <div className="poMain">
-        <div className="poLogin">
-          <div className="rightdiv">
-            <img src="../Images/inwardLogin.png" alt="Logo" style={{ width: "100%", height: "100%", marginLeft: 20 }} />
-          </div>
- 
-          <div className="rightdiv">
-            <div className="rightIcon">
-              <div>
-                <h1 className="h2">Inward Gate Entry</h1>
-                <h2 className="h3">Against STO Invoice</h2>
-              </div>
- 
-              <div className="closeIcon">
-                <IconContext.Provider value={{ color: "#f10f0f", size: "20px" }}>
-                  <AiOutlineCloseCircle type="button" onClick={() => navigate("/Home")} />
-                </IconContext.Provider>
-              </div>
+    <div className="ep-root">
+      {/* Top Bar */}
+      <header className="ep-topbar">
+        <div className="ep-topbar-left">
+          <button className="ep-back-btn" onClick={() => navigate('/Home')}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <div className="ep-brand">
+            <img src="/Images/Frame_logo.png" alt="Logo" className="ep-brand-logo" onClick={() => navigate('/Home')} />
+            <div>
+              <div className="ep-brand-name">GateAccess Pro</div>
+              <div className="ep-brand-sub">YARD LOGISTICS OS</div>
             </div>
- 
-            <div className="inputsSTO">
-              <div className="grid-container">
-                <p className="Stoheading">Bill Number</p>
+          </div>
+        </div>
+        <div className="ep-topbar-right">
+          <div className="ep-user-chip">
+            <div className="ep-avatar">{showName.charAt(0).toUpperCase()}</div>
+            <span className="ep-user-name">{showName}</span>
+          </div>
+        </div>
+      </header>
+
+      {/* Main */}
+      <main className="ep-main">
+        <div className="ep-page-header">
+          <div className="ep-breadcrumb">
+            <span>Dashboard</span><span className="ep-breadcrumb-sep">›</span>
+            <span>Inward Gate Entry</span><span className="ep-breadcrumb-sep">›</span>
+            <span className="ep-breadcrumb-current">Against STO Invoice</span>
+          </div>
+          <div className="ep-type-badge inward">
+            <span className="ep-badge-dot"></span>INWARD
+          </div>
+          <h1 className="ep-page-title">Inward Gate Entry</h1>
+          <p className="ep-page-subtitle">Against STO Invoice — enter the Bill Number to proceed</p>
+        </div>
+
+        <div className="ep-card">
+          <div className="ep-form-section">
+            <div className="ep-section-label">STO Details</div>
+            <div className="ep-field-group" style={{ gridTemplateColumns: '1fr' }}>
+              <div className="ep-field">
+                <label>Bill Number <span className="req">*</span></label>
                 <input
+                  className={`ep-input${error.PO ? ' error' : ''}`}
                   type="text"
                   placeholder="Please enter Bill Number"
-                  style={{ padding: 10 }}
-                  onChange={(e) => setValue({ PO: e.target.value })}
+                  onChange={(e) => { setValue({ PO: e.target.value }); setError({ ...error, PO: '' }); }}
                 />
-                {error.PO && <span className="error">{error.PO}</span>}
+                {error.PO && <span className="ep-field-error">{error.PO}</span>}
               </div>
- 
-              <button className="loginBtn" onClick={handleSubmit}>
-                Proceed
-              </button>
             </div>
           </div>
+
+          <div className="ep-actions">
+            <button className="ep-cancel-btn" onClick={() => navigate('/Home')}>Cancel</button>
+            <button className="ep-submit-btn" onClick={handleSubmit}>
+              Proceed
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
         </div>
- 
-        <div className="footerStyle">
-          <p className="footerText">Powered by</p>
-          <img src="../Images/Picture1.png" alt="Logo" className="footerlogo" />
-        </div>
-      </div>
- 
-      {/* Custom Modal with Inline CSS */}
+      </main>
+
+      {/* Gate Entry Selection Modal */}
       {modalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 999,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "50%",
-              textAlign: "center",
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-            }}
-          >
-            <h2>Gate Entry Details</h2>
-            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+        <div className="ep-modal-overlay">
+          <div className="ep-modal">
+            <div className="ep-modal-title">Select Gate Entry</div>
+            <div className="ep-modal-sub">Select the gate entry record to proceed with</div>
+            <table className="ep-modal-table">
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Gate Entry No</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Vehicle No</th>
-                  <th style={{ border: "1px solid #ddd", padding: "8px" }}>Driver Name</th>
+                  <th>Gate Entry No</th>
+                  <th>Vehicle No</th>
+                  <th>Driver Name</th>
                 </tr>
               </thead>
               <tbody>
                 {gateEntryDetails.length > 0 ? (
                   gateEntryDetails.map((entry, index) => (
-                    <tr key={index}  
-                    style={{
-                        border: "1px solid #ddd",
-                        padding: "8px",
-                        background: selectedEntry == entry ? "#d1e7dd" : "white",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setSelectedEntry(entry)}>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>{entry.GATE_ENTRY_NO}</td>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>{entry.VEHICLE_NO}</td>
-                      <td style={{ border: "1px solid #ddd", padding: "8px" }}>{entry.DRIVER_NAME}</td>
+                    <tr
+                      key={index}
+                      className={selectedEntry === entry ? 'selected' : ''}
+                      onClick={() => setSelectedEntry(entry)}
+                    >
+                      <td>{entry.GATE_ENTRY_NO}</td>
+                      <td>{entry.VEHICLE_NO}</td>
+                      <td>{entry.DRIVER_NAME}</td>
                     </tr>
                   ))
                 ) : (
-                  <tr>
-                    <td colSpan="3" style={{ border: "1px solid #ddd", padding: "8px", textAlign: "center" }}>
-                      No data available
-                    </td>
-                  </tr>
+                  <tr><td colSpan="3" style={{ textAlign: 'center', color: '#94a3b8' }}>No data available</td></tr>
                 )}
               </tbody>
             </table>
- 
-            <div style={{ display: "flex", justifyContent: "space-around" }}>
-              <button
-                style={{
-                  padding: "10px 20px",
-                  background: "#ccc",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-                onClick={() => setModalOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                style={{
-                  padding: "10px 20px",
-                  background: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-                onClick={handleConfirm}
-              >
-                Confirm
+            <div className="ep-modal-actions">
+              <button className="ep-cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
+              <button className="ep-submit-btn" onClick={handleConfirm} disabled={!selectedEntry}>
+                Confirm & Proceed
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
- 
+
 export default connect(null, { StoData })(HomeSTO);
- 
- 

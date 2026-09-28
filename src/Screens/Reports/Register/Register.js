@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 import { Link, useNavigate } from "react-router-dom";
+import Layout from "../../../Components/Layout";
 import "../../Dashboard/Home.css";
 
 import { CSVLink } from "react-csv";
@@ -249,93 +250,8 @@ const Table = () => {
   ];
 
   return (
-    <div className="hm-root">
-      <header className="hm-topbar">
-        <div className="hm-topbar-left">
-          <button className="hm-sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
-          <div className="hm-brand">
-            <img src="/Images/Frame_logo.png" alt="Logo" className="hm-brand-logo" />
-            <div>
-              <div className="hm-brand-name">GateAccess Pro</div>
-              <div className="hm-brand-sub">YARD LOGISTICS OS</div>
-            </div>
-          </div>
-          <div className="hm-plant-selector">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/>
-            </svg>
-            1100 – Ram Ratna Infrastructure – Mum HO
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-        </div>
-
-        <div className="hm-topbar-right">
-          <div className="hm-topbar-time">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {formatTime(time)} IST
-          </div>
-          <div className="hm-shift-badge">Shift A (06:00 – 14:00)</div>
-          <button className="hm-quick-pass-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Quick Gate Pass
-          </button>
-          <div className="hm-notif-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span className="hm-notif-dot"></span>
-          </div>
-          <div className="hm-user-chip">
-            <div className="hm-avatar">{showName.charAt(0).toUpperCase()}</div>
-            <div>
-              <div className="hm-user-name">{showName}</div>
-              <div className="hm-user-role">Admin Dispatcher</div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="hm-body">
-        <aside className={`hm-sidebar${sidebarOpen ? "" : " hm-sidebar-collapsed"}`}>
-          <div className="hm-sidebar-section-label">OPERATIONS COMMAND</div>
-          <nav className="hm-sidebar-nav">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                className={`hm-nav-item${item.id === "register" ? " active" : ""}`}
-                onClick={item.action}
-              >
-                <span className="hm-nav-icon">{item.icon}</span>
-                {sidebarOpen && <span className="hm-nav-label">{item.label}</span>}
-              </button>
-            ))}
-          </nav>
-
-          <div className="hm-sidebar-footer">
-            <div className="hm-terminal-info">
-              <div className="hm-terminal-dot"></div>
-              {sidebarOpen && (
-                <div>
-                  <div className="hm-terminal-label">Active Terminal</div>
-                  <div className="hm-terminal-name">GATEWAY #02</div>
-                  <span className="hm-terminal-badge">INBOUND</span>
-                </div>
-              )}
-            </div>
-            {sidebarOpen && <div className="hm-version">v2.8.4-R3</div>}
-            {sidebarOpen && (
-              <button className="hm-help-btn">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Help Desk
-              </button>
-            )}
-          </div>
-        </aside>
-
-        <main className="hm-main" style={{padding: 0, backgroundColor: "#f8fafc"}}>
-          <div className="reg-root" style={{minHeight: 'auto'}}>
+    <Layout activeNav="register">
+      <div className="reg-root" style={{minHeight: 'auto'}}>
       {/* ────────────────────────────────────────────────────────
           TOP BAR & BREADCRUMBS
       ──────────────────────────────────────────────────────── */}
@@ -692,9 +608,7 @@ const Table = () => {
       )}
 
     </div>
-    </main>
-  </div>
-</div>
+    </Layout>
   );
 };
 

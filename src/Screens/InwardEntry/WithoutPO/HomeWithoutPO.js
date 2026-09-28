@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import '../../../Stylesheet/Details.scss'
-import Footer from '../../../Components/Footer'
-import Header from '../../../Components/Header'
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import '../../../Stylesheet/EntryPage.css'
+import { useNavigate, useLocation } from "react-router-dom";
 import { getVehicleDetails } from '../../../redux/action/Entry';
 import { connect } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -28,6 +26,7 @@ function HomeWithoutPO(props) {
   const podata = location.state;
   const [selectedFile, setSelectedFile] = useState([]);
   const [details, setDetails] = useState([]);
+  const [showName] = useState(() => localStorage.getItem('EMP_NAME') || 'User');
 
   const [data, setdata] = useState({
     INVOICE: "",
@@ -301,386 +300,120 @@ function HomeWithoutPO(props) {
   };
 
   return (
-    <div className="container">
-      <Header />
-      <div
-        className="header_file"
-        style={{ textAlign: "left", fontFamily: "Roboto, sans-serif" }}
-      >
-        <span
-          className="sub-header"
-          style={{ marginLeft: "65px", fontWeight: "500" }}
-        >
-          Inward Gate Entry
-        </span>{" "}
-        Without PO
-      </div>
-
-      <div className="section" style={{ marginLeft: "50px" }}>
-        <h3 style={{ color: "#717171" }}>Transport Details :</h3>
-        <div style={{ width: "80%", marginLeft: "150px" }}>
-          <div className="row">
-            {/* --- Vehicle Number dropdown, fetched via emp ID, autofills the form --- */}
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Vehicle Number*</label>
-              <select
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.VEHICLENO ? focusStyle : {}),
-                }}
-                value={data.VEHICLENO}
-                onChange={(e) => setValue({ VEHICLENO: e.target.value })}
-                onFocus={() => handleFocus("VEHICLENO")}
-                onBlur={() => handleBlur("VEHICLENO")}
-              >
+    <div className="ep-root">
+      <header className="ep-topbar">
+        <div className="ep-topbar-left">
+          <button className="ep-back-btn" onClick={() => navigate('/Home')}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <div className="ep-brand">
+            <img src="/Images/Frame_logo.png" alt="Logo" className="ep-brand-logo" onClick={() => navigate('/Home')} />
+            <div>
+              <div className="ep-brand-name">GateAccess Pro</div>
+              <div className="ep-brand-sub">YARD LOGISTICS OS</div>
+            </div>
+          </div>
+        </div>
+        <div className="ep-topbar-right">
+          <div className="ep-user-chip">
+            <div className="ep-avatar">{showName.charAt(0).toUpperCase()}</div>
+            <span className="ep-user-name">{showName}</span>
+          </div>
+        </div>
+      </header>
+      <main className="ep-main" style={{ maxWidth: '1100px' }}>
+        <div className="ep-page-header">
+          <div className="ep-breadcrumb"><span>Dashboard</span><span className="ep-breadcrumb-sep">›</span><span>Inward Gate Entry</span><span className="ep-breadcrumb-sep">›</span><span className="ep-breadcrumb-current">Without PO / NRGP / RGP</span></div>
+          <div className="ep-type-badge inward"><span className="ep-badge-dot"></span>INWARD</div>
+          <h1 className="ep-page-title">Inward Gate Entry</h1>
+          <p className="ep-page-subtitle">Without PO — fill in all transport and document details below</p>
+        </div>
+        <div className="ep-card">
+      <div className="ep-form-section">
+        <div className="ep-section-label">Transport Details</div>
+        <div className="ep-field-group">
+            <div className="ep-field">
+              <label>Vehicle Number <span className="req">*</span></label>
+              <select className={`ep-select${error.VEHICLENO ? ' error' : ''}`} value={data.VEHICLENO} onChange={(e) => setValue({ VEHICLENO: e.target.value })}>
                 <option value="">Select a vehicle</option>
-                {vehicleList.map((vehicleNo, index) => (
-                  <option key={index} value={vehicleNo}>
-                    {vehicleNo}
-                  </option>
-                ))}
+                {vehicleList.map((vehicleNo, index) => (<option key={index} value={vehicleNo}>{vehicleNo}</option>))}
               </select>
+              {error.VEHICLENO && <span className="ep-field-error">{error.VEHICLENO}</span>}
             </div>
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>EWay Bill No.</label>
-              <input
-                type="text"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.ROADPERMIT ? focusStyle : {}),
-                }}
-                value={data.ROADPERMIT}
-                onChange={(e) => setValue({ ROADPERMIT: e.target.value })}
-                onFocus={() => handleFocus("ROADPERMIT")}
-                onBlur={() => handleBlur("ROADPERMIT")}
-              />
+            <div className="ep-field">
+              <label>EWay Bill No.</label>
+              <input className="ep-input" type="text" value={data.ROADPERMIT} onChange={(e) => setValue({ ROADPERMIT: e.target.value })} />
             </div>
-          </div>
-          <div className="row">
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Mode of Transport*</label>
-              <select
-                className="dropdown-mot"
-                style={{
-                  height: "2rem",
-                  borderBottom: "1px solid black",
-                  borderTop: "none",
-                  borderRight: "none",
-                  borderLeft: "none",
-                  ...inputStyle,
-                  ...(isFocused.MOT ? focusStyle : {}),
-                }}
-                value={data.MOT}
-                onChange={handleChange}
-                onFocus={() => handleFocus("MOT")}
-                onBlur={() => handleBlur("MOT")}
-              >
-                <option value={""}>Please select Mode of Transport*</option>
-                {motList.map((plant) => (
-                  <option key={plant.LABLE} value={plant.LABLE}>
-                    {plant.LABLE}
-                  </option>
-                ))}
+        </div>
+        <div className="ep-field-group">
+            <div className="ep-field">
+              <label>Mode of Transport <span className="req">*</span></label>
+              <select className={`ep-select${error.MOT ? ' error' : ''}`} value={data.MOT} onChange={handleChange}>
+                <option value="">Please select Mode of Transport</option>
+                {motList.map((plant) => (<option key={plant.LABLE} value={plant.LABLE}>{plant.LABLE}</option>))}
               </select>
+              {error.MOT && <span className="ep-field-error">{error.MOT}</span>}
             </div>
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Vehicle Category*</label>
-              <select
-                className="dropdown-mot"
-                style={{
-                  height: "2rem",
-                  borderBottom: "1px solid black",
-                  borderTop: "none",
-                  borderRight: "none",
-                  borderLeft: "none",
-                  ...inputStyle,
-                  ...(isFocused.VEHCAT ? focusStyle : {}),
-                }}
-                value={data.VEHCAT}
-                onChange={handleChangeVcat}
-                onFocus={() => handleFocus("VEHCAT")}
-                onBlur={() => handleBlur("VEHCAT")}
-              >
-                <option value={""}>Please select Vehicle Category*</option>
-                {vcatList.map((plant) => (
-                  <option key={plant.LABLE} value={plant.LABLE}>
-                    {plant.LABLE}
-                  </option>
-                ))}
+            <div className="ep-field">
+              <label>Vehicle Category <span className="req">*</span></label>
+              <select className={`ep-select${error.VEHCAT ? ' error' : ''}`} value={data.VEHCAT} onChange={handleChangeVcat}>
+                <option value="">Please select Vehicle Category</option>
+                {vcatList.map((plant) => (<option key={plant.LABLE} value={plant.LABLE}>{plant.LABLE}</option>))}
               </select>
+              {error.VEHCAT && <span className="ep-field-error">{error.VEHCAT}</span>}
             </div>
           </div>
-        </div>
       </div>
 
-      <div className="section" style={{ marginLeft: "50px" }}>
-        <h3 style={{ color: "#717171" }}>Basic Details :</h3>
-        <div style={{ width: "80%", marginLeft: "150px", color: "#000000" }}>
-          <div className="row">
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Invoice Number*</label>
-              <input
-                type="text"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.INVOICE ? focusStyle : {}),
-                }}
-                value={data.INVOICE}
-                onChange={(e) => setValue({ INVOICE: e.target.value })}
-                onFocus={() => handleFocus("INVOICE")}
-                onBlur={() => handleBlur("INVOICE")}
-              />
-            </div>
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Invoice Date*</label>
-              <input
-                type="date"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.DOCDATE ? focusStyle : {}),
-                }}
-                value={data.DOCDATE}
-                onChange={(e) => setValue({ DOCDATE: e.target.value })}
-                onFocus={() => handleFocus("DOCDATE")}
-                onBlur={() => handleBlur("DOCDATE")}
-              />
-            </div>
+      <div className="ep-form-section">
+        <div className="ep-section-label">Basic Details</div>
+        <div className="ep-field-group">
+            <div className="ep-field"><label>Invoice Number <span className="req">*</span></label><input className={`ep-input${error.INVOICE ? ' error' : ''}`} type="text" value={data.INVOICE} onChange={(e) => setValue({ INVOICE: e.target.value })} />{error.INVOICE && <span className="ep-field-error">{error.INVOICE}</span>}</div>
+            <div className="ep-field"><label>Invoice Date <span className="req">*</span></label><input className={`ep-input${error.DOCDATE ? ' error' : ''}`} type="date" value={data.DOCDATE} onChange={(e) => setValue({ DOCDATE: e.target.value })} />{error.DOCDATE && <span className="ep-field-error">{error.DOCDATE}</span>}</div>
+            <div className="ep-field"><label>LR Number <span className="req">*</span></label><input className={`ep-input${error.LR ? ' error' : ''}`} type="text" value={data.LR} onChange={(e) => setValue({ LR: e.target.value })} />{error.LR && <span className="ep-field-error">{error.LR}</span>}</div>
+            <div className="ep-field"><label>LR Date <span className="req">*</span></label><input className={`ep-input${error.LRDATE ? ' error' : ''}`} type="date" value={data.LRDATE} onChange={(e) => setValue({ LRDATE: e.target.value })} />{error.LRDATE && <span className="ep-field-error">{error.LRDATE}</span>}</div>
           </div>
-          <div className="row">
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>LR Number*</label>
-              <input
-                type="text"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.LR ? focusStyle : {}),
-                }}
-                value={data.LR}
-                onChange={(e) => setValue({ LR: e.target.value })}
-                onFocus={() => handleFocus("LR")}
-                onBlur={() => handleBlur("LR")}
-              />
-            </div>
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>LR Date*</label>
-              <input
-                type="date"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.LRDATE ? focusStyle : {}),
-                }}
-                value={data.LRDATE}
-                onChange={(e) => setValue({ LRDATE: e.target.value })}
-                onFocus={() => handleFocus("LRDATE")}
-                onBlur={() => handleBlur("LRDATE")}
-              />
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div className="section" style={{ marginLeft: "50px" }}>
-        <h3 style={{ color: "#717171" }}>Driver And Reporting Details :</h3>
-        <div style={{ width: "80%", marginLeft: "150px" }}>
-          <div className="row">
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Transport Driver Name*</label>
-              <input
-                type="text"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.DRIVERNAME ? focusStyle : {}),
-                }}
-                value={data.DRIVERNAME}
-                onChange={(e) => setValue({ DRIVERNAME: e.target.value })}
-                onFocus={() => handleFocus("DRIVERNAME")}
-                onBlur={() => handleBlur("DRIVERNAME")}
-              />
-            </div>
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Transporter Mobile No.*</label>
-              <input
-                type="text"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.MOBILE ? focusStyle : {}),
-                }}
-                value={data.MOBILE}
-                onChange={(e) => setValue({ MOBILE: e.target.value })}
-                onFocus={() => handleFocus("MOBILE")}
-                onBlur={() => handleBlur("MOBILE")}
-              />
-            </div>
+      <div className="ep-form-section">
+        <div className="ep-section-label">Driver & Reporting Details</div>
+        <div className="ep-field-group">
+            <div className="ep-field"><label>Transport Driver Name <span className="req">*</span></label><input className={`ep-input${error.DRIVERNAME ? ' error' : ''}`} type="text" value={data.DRIVERNAME} onChange={(e) => setValue({ DRIVERNAME: e.target.value })} />{error.DRIVERNAME && <span className="ep-field-error">{error.DRIVERNAME}</span>}</div>
+            <div className="ep-field"><label>Transporter Mobile No. <span className="req">*</span></label><input className={`ep-input${error.MOBILE ? ' error' : ''}`} type="text" value={data.MOBILE} onChange={(e) => setValue({ MOBILE: e.target.value })} />{error.MOBILE && <span className="ep-field-error">{error.MOBILE}</span>}</div>
+            <div className="ep-field"><label>Reporting Date & Time <span className="req">*</span></label><input className={`ep-input${error.VEHICLEREPDATE ? ' error' : ''}`} type="datetime-local" value={data.VEHICLEREPDATE} onChange={(e) => setValue({ VEHICLEREPDATE: e.target.value })} />{error.VEHICLEREPDATE && <span className="ep-field-error">{error.VEHICLEREPDATE}</span>}</div>
+            <div className="ep-field"><label>Packages</label><input className="ep-input" type="text" maxLength={4} value={data.PACKAGES} onChange={(e) => setValue({ PACKAGES: e.target.value })} /></div>
           </div>
-          <div className="row">
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Reporting Date & Time*</label>
-              <input
-                type="datetime-local"
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.VEHICLEREPDATE ? focusStyle : {}),
-                }}
-                value={data.VEHICLEREPDATE}
-                onChange={(e) => setValue({ VEHICLEREPDATE: e.target.value })}
-                onFocus={() => handleFocus("VEHICLEREPDATE")}
-                onBlur={() => handleBlur("VEHICLEREPDATE")}
-              />
-            </div>
-            <div className="input-group" style={{ paddingRight: "50px" }}>
-              <label style={{ color: "#000000" }}>Packages</label>
-              <input
-                type="text"
-                maxLength={4}
-                style={{
-                  borderTop: "none",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  borderBottom: "1px solid black",
-                  ...inputStyle,
-                  ...(isFocused.PACKAGES ? focusStyle : {}),
-                }}
-                value={data.PACKAGES}
-                onChange={(e) => setValue({ PACKAGES: e.target.value })}
-                onFocus={() => handleFocus("PACKAGES")}
-                onBlur={() => handleBlur("PACKAGES")}
-              />
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div>
-        <input
-          type="file"
-          style={{ display: "none" }}
-          id="file-input"
-          multiple
-          onChange={handleFileChange}
-        />
-      </div>
-
-      <div
-        className="section"
-        style={{ marginLeft: "50px", display: "flex", flexDirection: "row" }}
-      >
-        <h3 style={{ color: "#717171" }}>Attach Files :</h3>
-        <label htmlFor="file-input" style={{ cursor: "pointer" }}>
-          <img
-            src="/Images/Vector__.png"
-            style={{
-              height: "15px",
-              width: "15px",
-              marginTop: "18px",
-              marginLeft: "15px",
-            }}
-            alt="Attachment Image"
-          ></img>
+      <div className="ep-form-section">
+        <div className="ep-section-label">Attach Files</div>
+        <input type="file" style={{ display: 'none' }} id="file-input" multiple onChange={handleFileChange} />
+        <label htmlFor="file-input" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#3b82f6', fontWeight: 600 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          Attach File(s)
         </label>
-        <div>
-          {selectedFile?.length > 0 && (
-            <div
-              className="uploadStyle"
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap",
-                gap: "20px",
-                marginTop: "14px",
-                marginLeft: "12px",
-              }}
-            >
-              {selectedFile.map((file, index) => (
-                <div style={{ display: "flex" }} key={index}>
-                  <div
-                    style={{
-                      cursor: "pointer",
-                      borderRadius: "20px",
-                      border: "1px solid black",
-                      display: "flex",
-                      alignItems: "center",
-                      fontSize: "14px",
-                      padding: "4px 10px",
-                    }}
-                  >
-                    <span onClick={() => handlePreview(file)}>{file.name}</span>
-                    <img
-                      src="/Images/Cross.png"
-                      style={{
-                        cursor: "pointer",
-                        height: "15px",
-                        width: "15px",
-                        marginLeft: "5px",
-                      }}
-                      onClick={() => removeFile(index)}
-                    ></img>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {selectedFile?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+            {selectedFile.map((file, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 500 }}>
+                <span style={{ cursor: 'pointer', color: '#2563eb' }} onClick={() => handlePreview(file)}>{file.name}</span>
+                <span style={{ cursor: 'pointer', color: '#94a3b8', fontSize: 14 }} onClick={() => removeFile(index)}>✕</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div style={{ textAlign: "right" }}>
-        <button
-          className="submit-button"
-          onClick={handleSubmit}
-          style={{
-            border: "none",
-            borderRadius: "40px",
-            backgroundColor: "#0091FF",
-            color: "white",
-            width: "150px",
-            height: "45px",
-            cursor: "pointer",
-            marginTop: "40px",
-            marginRight: "30px",
-            marginBottom: "20px",
-          }}
-        >
-          View Item Fields
-        </button>
-      </div>
-      <div className="footerSpacing">
-        <Footer></Footer>
-      </div>
+          <div className="ep-actions">
+            <button className="ep-cancel-btn" onClick={() => navigate('/Home')}>Cancel</button>
+            <button className="ep-submit-btn" onClick={handleSubmit}>
+              View Item Fields
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

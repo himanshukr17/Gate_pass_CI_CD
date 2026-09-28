@@ -394,6 +394,7 @@
   color: #f1f5f9;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .hm-banner::before {
@@ -444,8 +445,9 @@
 
 .hm-banner-body {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 20px;
   position: relative;
 }
@@ -478,6 +480,7 @@
 .hm-banner-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   flex-shrink: 0;
 }
@@ -513,6 +516,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  flex-shrink: 0;
 }
 
 .hm-stat-card {
@@ -716,6 +720,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  flex-shrink: 0;
 }
 
 /* Movements */
@@ -831,6 +836,114 @@
   font-size: 10px;
   font-weight: 700;
   color: #16a34a;
+}
+
+/* ════════════════════════════════
+   GATE ENTRY SIDEBAR SUB-TABS
+════════════════════════════════ */
+.hm-gate-subtabs {
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  margin: 4px 0 4px 6px;
+  padding: 8px 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+  animation: fadeIn 0.18s ease;
+}
+
+.hm-gate-tab-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.hm-gate-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 4px;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #64748b;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.hm-gate-tab:hover {
+  color: #94a3b8;
+  background: rgba(255,255,255,0.05);
+}
+
+.hm-gate-tab-active {
+  background: #2563eb !important;
+  color: #fff !important;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.35);
+}
+
+.hm-gate-tab-outward-active {
+  background: #16a34a !important;
+  box-shadow: 0 1px 4px rgba(22,163,74,0.35) !important;
+}
+.hm-gate-options {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hm-gate-option {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  color: #94a3b8;
+  transition: background 0.15s, color 0.15s, padding-left 0.15s;
+}
+
+.hm-gate-option:hover {
+  background: rgba(255,255,255,0.07);
+  color: #e2e8f0;
+  padding-left: 14px;
+}
+
+.hm-gate-opt-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hm-gate-option-inward .hm-gate-opt-dot {
+  background: #60a5fa;
+}
+
+.hm-gate-option-inward:hover {
+  background: rgba(59,130,246,0.12);
+  color: #93c5fd;
+}
+
+.hm-gate-option-outward .hm-gate-opt-dot {
+  background: #4ade80;
+}
+
+.hm-gate-option-outward:hover {
+  background: rgba(22,163,74,0.12);
+  color: #86efac;
 }
 
 /* ════════════════════════════════

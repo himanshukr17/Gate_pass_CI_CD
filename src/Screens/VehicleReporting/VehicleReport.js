@@ -11,6 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { vehicleRegister } from "../../redux/action/VehicleRegister";
 import Select from "react-select";
 import ReportTable from "../../Components/ReportTable";
+import Layout from "../../Components/Layout";
 import moment from "moment";
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL
@@ -672,52 +673,8 @@ function VehicleReport(props) {
   });
 
   return (
-    <div className="hm-root">
-      <header className="hm-topbar">
-        <div className="hm-topbar-left">
-          <button className="hm-sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-          <div className="hm-brand">
-            <img src="/Images/Frame_logo.png" alt="Logo" className="hm-brand-logo" />
-            <div><div className="hm-brand-name">GateAccess Pro</div><div className="hm-brand-sub">YARD LOGISTICS OS</div></div>
-          </div>
-        </div>
-        <div className="hm-topbar-right">
-          <div className="hm-topbar-time">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {formatTime(time)} IST
-          </div>
-          <div className="hm-shift-badge">Shift A</div>
-          <div className="hm-user-chip">
-            <div className="hm-avatar">{showName.charAt(0).toUpperCase()}</div>
-            <div><div className="hm-user-name">{showName}</div><div className="hm-user-role">Admin Dispatcher</div></div>
-          </div>
-        </div>
-      </header>
-
-      <div className="hm-body">
-        <aside className={`hm-sidebar${sidebarOpen ? "" : " hm-sidebar-collapsed"}`}>
-          <div className="hm-sidebar-section-label">OPERATIONS COMMAND</div>
-          <nav className="hm-sidebar-nav">
-            {navItems.map((item) => (
-              <button key={item.id} className={`hm-nav-item${item.id === "vehicle" ? " active" : ""}`} onClick={item.action}>
-                <span className="hm-nav-icon">{item.icon}</span>
-                {sidebarOpen && <span className="hm-nav-label">{item.label}</span>}
-              </button>
-            ))}
-          </nav>
-          <div className="hm-sidebar-footer">
-            <div className="hm-terminal-info">
-              <div className="hm-terminal-dot"></div>
-              {sidebarOpen && <div><div className="hm-terminal-label">Active Terminal</div><div className="hm-terminal-name">GATEWAY #02</div><span className="hm-terminal-badge">INBOUND</span></div>}
-            </div>
-            {sidebarOpen && <div className="hm-version">v2.8.4-R3</div>}
-          </div>
-        </aside>
-
-        <main className="hm-main" style={{padding: 0, backgroundColor: "#f8fafc"}}>
-          <div className="vr-root">
+    <Layout activeNav="vehicle">
+      <div className="vr-root">
             <div className="vr-title-row">
               <div className="vr-title-left">
                 <h1>Vehicle Reporting & Security Gate Queue</h1>
@@ -1004,8 +961,7 @@ function VehicleReport(props) {
           </div>
         )}
 
-        </main>{/* /hm-main */}
-      </div>{/* /hm-body */}
+
 
       {/* ── Add Vehicle Modal ── */}
       {isModalOpen && (
@@ -1484,7 +1440,7 @@ function VehicleReport(props) {
           </div>
         </div>
       )}
-    </div>
+    </Layout>
   );
 }
 

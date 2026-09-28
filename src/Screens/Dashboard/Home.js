@@ -21,8 +21,10 @@ function Home(props) {
   const [openModel, setOpenModel] = useState(false);
   const [outwardModel, setoutwarModel] = useState(false);
   const [reportModel, setReportModel] = useState(false);
-  const [showName] = useState(() => localStorage.getItem("EMP_NAME") || "User");
+  const showName = props.userName || localStorage.getItem("EMP_NAME") || "User";
   const [activeNav, setActiveNav] = useState("dashboard");
+  const [gateEntryExpanded, setGateEntryExpanded] = useState(false);
+  const [gateEntryTab, setGateEntryTab] = useState("inward"); // "inward" | "outward"
 
   const formatTime = (d) =>
     d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
@@ -70,18 +72,18 @@ function Home(props) {
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
         </svg>
       ),
-      action: () => { setActiveNav("newgate"); },
+      action: () => { setActiveNav("newgate"); setGateEntryExpanded(!gateEntryExpanded); },
     },
     {
       id: "plant",
-      label: "Plant & User Access",
+      label: "User Access",
       icon: (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
           <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
       ),
-      action: () => { setActiveNav("plant"); if (props.isAdmin == 2) navigate("/AddUser"); },
+      action: () => { setActiveNav("plant"); navigate("/UserAccess"); },
     },
   ];
 
@@ -289,14 +291,73 @@ function Home(props) {
           <div className="hm-sidebar-section-label">OPERATIONS COMMAND</div>
           <nav className="hm-sidebar-nav">
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                className={`hm-nav-item${activeNav === item.id ? " active" : ""}`}
-                onClick={item.action}
-              >
-                <span className="hm-nav-icon">{item.icon}</span>
-                {sidebarOpen && <span className="hm-nav-label">{item.label}</span>}
-              </button>
+              <React.Fragment key={item.id}>
+                <button
+                  className={`hm-nav-item${activeNav === item.id ? " active" : ""}`}
+                  onClick={item.action}
+                >
+                  <span className="hm-nav-icon">{item.icon}</span>
+                  {sidebarOpen && <span className="hm-nav-label">{item.label}</span>}
+                  {sidebarOpen && item.id === "newgate" && (
+                    <span className="hm-nav-chevron" style={{ marginLeft: "auto", transition: "transform 0.2s", transform: gateEntryExpanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  )}
+                </button>
+
+                {/* Gate Entry Sub-Tabs */}
+                {item.id === "newgate" && gateEntryExpanded && sidebarOpen && (
+                  <div className="hm-gate-subtabs">
+                    {/* Tab switcher */}
+                    <div className="hm-gate-tab-row">
+                      <button
+                        className={`hm-gate-tab${gateEntryTab === "inward" ? " hm-gate-tab-active" : ""}`}
+                        onClick={() => setGateEntryTab("inward")}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                        Inward
+                      </button>
+                      <button
+                        className={`hm-gate-tab${gateEntryTab === "outward" ? " hm-gate-tab-active hm-gate-tab-outward-active" : ""}`}
+                        onClick={() => setGateEntryTab("outward")}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="16 7 12 3 8 7"/><line x1="12" y1="21" x2="12" y2="3"/></svg>
+                        Outward
+                      </button>
+                    </div>
+
+                    {/* Inward options */}
+                    {gateEntryTab === "inward" && (
+                      <div className="hm-gate-options">
+                        <button className="hm-gate-option hm-gate-option-inward" onClick={() => navigate("/Inward/WithPO")}>
+                          <span className="hm-gate-opt-dot"></span>With PO / ASN
+                        </button>
+                        <button className="hm-gate-option hm-gate-option-inward" onClick={() => navigate("/Inward/WithoutPO")}>
+                          <span className="hm-gate-opt-dot"></span>Without PO / NRGP
+                        </button>
+                        <button className="hm-gate-option hm-gate-option-inward" onClick={() => navigate("/Inward/STO")}>
+                          <span className="hm-gate-opt-dot"></span>Against STO Invoice
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Outward options */}
+                    {gateEntryTab === "outward" && (
+                      <div className="hm-gate-options">
+                        <button className="hm-gate-option hm-gate-option-outward" onClick={() => navigate("/Outward/NRGP")}>
+                          <span className="hm-gate-opt-dot"></span>Invoice / Challan
+                        </button>
+                        <button className="hm-gate-option hm-gate-option-outward" onClick={() => navigate("/Outward/STO")}>
+                          <span className="hm-gate-opt-dot"></span>With Return PO
+                        </button>
+                        <button className="hm-gate-option hm-gate-option-outward" onClick={() => navigate("/Outward/RGP-RFA-Issue")}>
+                          <span className="hm-gate-opt-dot"></span>RGP / NRGP
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </React.Fragment>
             ))}
           </nav>
 
@@ -349,12 +410,10 @@ function Home(props) {
                 </p>
               </div>
               <div className="hm-banner-actions">
-                {props.isAdmin == 2 && (
-                  <button className="hm-action-btn" onClick={(e) => { e.stopPropagation(); navigate("/AddUser"); }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                    Add New User
-                  </button>
-                )}
+                <button className="hm-action-btn" onClick={(e) => { e.stopPropagation(); navigate("/UserAccess"); }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                  Add New User
+                </button>
                 <button className="hm-action-btn" onClick={(e) => { e.stopPropagation(); navigate("/Reports/Register"); }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                   Daily Gate Sheet
@@ -508,6 +567,7 @@ function Home(props) {
 
 const mapStateToProps = (state) => ({
   isAdmin: state.loginreducer.isAdmin,
+  userName: state.loginreducer.name,
 });
 
 export default connect(mapStateToProps, {})(Home);

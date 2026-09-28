@@ -1,0 +1,460 @@
+/* ================================================================
+   EntryPage.css  –  Shared styles for all Gate Entry "Home" screens
+   Matches GateAccess Pro dashboard design language (Home.css)
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ════════════════════════════════
+   ROOT WRAPPER
+════════════════════════════════ */
+.ep-root {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ════════════════════════════════
+   TOP BAR
+════════════════════════════════ */
+.ep-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  min-height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.ep-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ep-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.ep-back-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.ep-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ep-brand-logo {
+  height: 28px;
+  width: auto;
+  cursor: pointer;
+}
+.ep-brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.ep-brand-sub {
+  font-size: 9px;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+
+.ep-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ep-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 30px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.ep-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ep-user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ════════════════════════════════
+   MAIN CONTENT AREA
+════════════════════════════════ */
+.ep-main {
+  flex: 1;
+  padding: 28px 32px;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ════════════════════════════════
+   PAGE HEADER (breadcrumb + title)
+════════════════════════════════ */
+.ep-page-header {
+  margin-bottom: 24px;
+}
+
+.ep-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.ep-breadcrumb-sep { color: #cbd5e1; }
+.ep-breadcrumb-current { color: #3b82f6; font-weight: 600; }
+
+.ep-page-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.ep-page-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* ════════════════════════════════
+   TYPE BADGE (INWARD / OUTWARD)
+════════════════════════════════ */
+.ep-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.ep-type-badge.inward {
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: #2563eb;
+}
+.ep-type-badge.outward {
+  background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.25);
+  color: #16a34a;
+}
+.ep-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: ep-blink 1.4s infinite;
+}
+.ep-type-badge.inward .ep-badge-dot { background: #3b82f6; }
+.ep-type-badge.outward .ep-badge-dot { background: #16a34a; }
+
+@keyframes ep-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ════════════════════════════════
+   CARD
+════════════════════════════════ */
+.ep-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  animation: ep-fadeIn 0.2s ease;
+}
+
+@keyframes ep-fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ════════════════════════════════
+   TOGGLE TABS (PO / ASN)
+════════════════════════════════ */
+.ep-toggle-row {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+.ep-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: transparent;
+  color: #64748b;
+}
+.ep-toggle-btn:hover { color: #1e293b; background: rgba(255,255,255,0.6); }
+.ep-toggle-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+/* ════════════════════════════════
+   FORM FIELDS
+════════════════════════════════ */
+.ep-form-section {
+  margin-bottom: 28px;
+}
+
+.ep-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ep-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ep-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+.ep-field label span.req { color: #ef4444; margin-left: 2px; }
+
+.ep-input,
+.ep-select {
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  outline: none;
+  width: 100%;
+}
+.ep-input:focus,
+.ep-select:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.ep-input.error,
+.ep-select.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+}
+.ep-input::placeholder { color: #94a3b8; }
+.ep-select { appearance: none; cursor: pointer; }
+
+.ep-field-error {
+  font-size: 11px;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+/* Add-more link */
+.ep-add-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.15s;
+}
+.ep-add-more:hover { color: #1d4ed8; }
+
+/* ════════════════════════════════
+   SUBMIT BUTTON
+════════════════════════════════ */
+.ep-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 8px;
+}
+
+.ep-cancel-btn {
+  padding: 10px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ep-cancel-btn:hover { background: #f1f5f9; }
+
+.ep-submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.1s;
+}
+.ep-submit-btn.outward-btn { background: #16a34a; }
+.ep-submit-btn:hover { background: #1d4ed8; }
+.ep-submit-btn.outward-btn:hover { background: #15803d; }
+.ep-submit-btn:active { transform: scale(0.97); }
+
+/* ════════════════════════════════
+   GATE ENTRY SELECTION MODAL
+════════════════════════════════ */
+.ep-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ep-fadeIn 0.15s ease;
+}
+
+.ep-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  width: 560px;
+  max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  animation: ep-fadeIn 0.2s ease;
+}
+
+.ep-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.ep-modal-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.ep-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.ep-modal-table thead tr {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.ep-modal-table th,
+.ep-modal-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+.ep-modal-table tbody tr {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ep-modal-table tbody tr:hover { background: #f8fafc; }
+.ep-modal-table tbody tr.selected { background: #eff6ff; }
+.ep-modal-table td { color: #1e293b; font-weight: 500; }
+
+.ep-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media (max-width: 700px) {
+  .ep-main { padding: 16px; }
+  .ep-field-group { grid-template-columns: 1fr; }
+  .ep-modal { padding: 20px; }
+}

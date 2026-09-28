@@ -66,6 +66,7 @@ import VehicleReport from './Screens/VehicleReporting/VehicleReport';
 
 // ADD user
 import UserReport from './Screens/Reports/UserReport/userReport';
+import UserAccess from './Screens/Reports/UserReport/UserAccess';
 import ChangePassword from './Screens/Dashboard/ChangePassword';
 
 function Main(props) {
@@ -145,6 +146,7 @@ function Main(props) {
                         <Route exact path='/VehicleReport' element={<PrivateRoute auth={props.EmpId}><VehicleReport /></PrivateRoute>} />
 
                         <Route exact path='/UserReport' element = {<PrivateRoute auth={props.EmpId}><UserReport /></PrivateRoute>} />
+                        <Route exact path='/UserAccess' element = {<PrivateRoute auth={props.EmpId}><UserAccess /></PrivateRoute>} />
 
 
 
